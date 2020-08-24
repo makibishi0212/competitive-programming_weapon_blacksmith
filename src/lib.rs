@@ -1,3 +1,1 @@
-use cargo_snippet::snippet;
-
-pub mod SegTree;
+pub mod LazySegTree;pub mod SegTree;
