@@ -344,5 +344,38 @@
       "    }",
       "}"
     ]
+  },
+  "@gcd": {
+    "prefix": "@gcd",
+    "body": [
+      "fn gcd(a: u64, b: u64) -> u64 {",
+      "    let mut aa: u64 = if a > b { a } else { b };",
+      "    let mut bb: u64 = if a > b { b } else { a };",
+      "    while bb != 0 {",
+      "        let tmp = bb;",
+      "        bb = aa % tmp;",
+      "        aa = tmp;",
+      "    }",
+      "    return aa;",
+      "}"
+    ]
+  },
+  "@lcm": {
+    "prefix": "@lcm",
+    "body": [
+      "fn gcd(a: u64, b: u64) -> u64 {",
+      "    let mut aa: u64 = if a > b { a } else { b };",
+      "    let mut bb: u64 = if a > b { b } else { a };",
+      "    while bb != 0 {",
+      "        let tmp = bb;",
+      "        bb = aa % tmp;",
+      "        aa = tmp;",
+      "    }",
+      "    return aa;",
+      "}",
+      "fn lcm(a: u64, b: u64) -> u64 {",
+      "    a / gcd(a, b) * b",
+      "}"
+    ]
   }
 }
