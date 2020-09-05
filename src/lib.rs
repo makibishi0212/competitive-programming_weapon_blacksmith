@@ -1,1 +1,2 @@
-pub mod LazySegTree;pub mod SegTree;
+pub mod lazy_seg_tree;
+pub mod seg_tree;
