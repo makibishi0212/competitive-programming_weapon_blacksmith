@@ -281,7 +281,7 @@ impl<T: std::clone::Clone + std::fmt::Debug, U: std::clone::Clone> std::fmt::Deb
 }
 
 #[test]
-fn lazy_seg_tree() {
+fn lazy_seg_tree_test() {
   let mut cum_sum = LazySegTree::new(
     vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
     |&a, &b| a + b,

@@ -149,7 +149,7 @@ impl<T: std::clone::Clone + std::fmt::Debug> std::fmt::Debug for SegTree<T> {
 }
 
 #[test]
-fn seg_tree() {
+fn seg_tree_test() {
   let mut cum_sum = SegTree::new(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10], |&a, &b| a + b);
   assert_eq!(cum_sum.query(0, 4), 10);
   assert_eq!(cum_sum.query(2, 6), 18);
