@@ -434,9 +434,9 @@
   "@gcd": {
     "prefix": "@gcd",
     "body": [
-      "fn gcd(a: u64, b: u64) -> u64 {",
-      "    let mut aa: u64 = if a > b { a } else { b };",
-      "    let mut bb: u64 = if a > b { b } else { a };",
+      "fn gcd(a: usize, b: usize) -> usize {",
+      "    let mut aa: usize = if a > b { a } else { b };",
+      "    let mut bb: usize = if a > b { b } else { a };",
       "    while bb != 0 {",
       "        let tmp = bb;",
       "        bb = aa % tmp;",
@@ -466,9 +466,9 @@
   "@lcm": {
     "prefix": "@lcm",
     "body": [
-      "fn gcd(a: u64, b: u64) -> u64 {",
-      "    let mut aa: u64 = if a > b { a } else { b };",
-      "    let mut bb: u64 = if a > b { b } else { a };",
+      "fn gcd(a: usize, b: usize) -> usize {",
+      "    let mut aa: usize = if a > b { a } else { b };",
+      "    let mut bb: usize = if a > b { b } else { a };",
       "    while bb != 0 {",
       "        let tmp = bb;",
       "        bb = aa % tmp;",
@@ -476,7 +476,7 @@
       "    }",
       "    return aa;",
       "}",
-      "fn lcm(a: u64, b: u64) -> u64 {",
+      "fn lcm(a: usize, b: usize) -> usize {",
       "    a / gcd(a, b) * b",
       "}"
     ]
@@ -492,6 +492,35 @@
       "    } else {",
       "        return power_mod(base, exp - 1, modulo) % modulo * base % modulo;",
       "    }",
+      "}"
+    ]
+  },
+  "@z_algorithm": {
+    "prefix": "@z_algorithm",
+    "body": [
+      "fn z_algorithm(s: &[char]) -> Vec<usize> {",
+      "    let mut z = vec![0; s.len()];",
+      "    z[0] = s.len();",
+      "    let mut i = 1;",
+      "    let mut j = 0;",
+      "    while i < s.len() {",
+      "        while i + j < s.len() && s[j] == s[i + j] {",
+      "            j += 1;",
+      "        }",
+      "        z[i] = j;",
+      "        if j == 0 {",
+      "            i += 1;",
+      "            continue;",
+      "        }",
+      "        let mut k = 1;",
+      "        while k < j && k + z[k] < j {",
+      "            z[i + k] = z[k];",
+      "            k += 1;",
+      "        }",
+      "        i += k;",
+      "        j -= k;",
+      "    }",
+      "    z",
       "}"
     ]
   }
