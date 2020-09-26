@@ -1,6 +1,9 @@
 use cargo_snippet::snippet;
 
-fn suffix_array() {
+fn suffix_array(s: &[char]) -> Vec<usize> {
+    // 長さnの文字列sの接尾辞(s[i..n),iは0..n-1)としてあり得るものを、辞書順にソートして返す。
+    // メモリを無駄に食わないように、文字列そのものの代わりにsuffixの開始位置を返す。
+    // SA-IS法 O(n)
     todo!();
 }
 
