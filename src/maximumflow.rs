@@ -1,3 +1,4 @@
+// 未実装
 use cargo_snippet::snippet;
 
 struct MaximumFlow {
