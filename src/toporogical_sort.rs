@@ -1,6 +1,7 @@
 use cargo_snippet::snippet;
 use std::collections::VecDeque;
 
+#[snippet("@topological_sort_directed")]
 fn topological_sort_directed_graph(n: usize, zeroIndexedEdges: &[(usize, usize)]) -> Vec<usize> {
     let mut result = vec![];
     let mut isolated = VecDeque::new();
@@ -36,6 +37,7 @@ fn topological_sort_directed_graph(n: usize, zeroIndexedEdges: &[(usize, usize)]
     result
 }
 
+#[snippet("@topological_sort_undirected")]
 fn topological_sort_undirected_graph(n: usize, zeroIndexedEdges: &[(usize, usize)]) -> Vec<usize> {
     let mut result = vec![];
     let mut isolated = VecDeque::new();
