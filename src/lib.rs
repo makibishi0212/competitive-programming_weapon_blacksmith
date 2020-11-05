@@ -1,4 +1,5 @@
 pub mod combination_mod;
+pub mod divisor;
 pub mod lazy_seg_tree;
 pub mod lcm;
 pub mod maximumflow;
