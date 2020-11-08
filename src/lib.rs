@@ -2,7 +2,7 @@
 //! Useful functions for Competitive programming snippets.
 //!
 //! ## How To Use
-//! ```
+//! ```bash
 //! git clone https://github.com/makibishi0212/competitive-programming_weapon_blacksmith.git
 //! cd competitive-programming_weapon_blacksmith
 //! cargo install
