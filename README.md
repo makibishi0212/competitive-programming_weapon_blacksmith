@@ -10,4 +10,4 @@ cargo install
 cargo snippet -t vscode > atcoder.code-snippets
 ```
 
-Place the file atcoder.code-snippets file in .vscode your project directory.
+Place the file `atcoder.code-snippets` file in .vscode your project directory.

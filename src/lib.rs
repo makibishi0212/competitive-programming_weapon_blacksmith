@@ -10,7 +10,7 @@
 //! cargo snippet -t vscode > atcoder.code-snippets
 //! ```
 //!
-//! Place the file atcoder.code-snippets file in .vscode your project directory.
+//! Place the file `atcoder.code-snippets` file in .vscode your project directory.
 
 pub mod binary_search;
 pub mod combination_mod;
