@@ -1,3 +1,25 @@
+//! ## About
+//!
+//! This is not function. Extra implement for Vec\<T\>.
+//!
+//! Give your vector the power of binary search.
+//!
+//! Your vector must be sorted. And `T` must implement std::cmp::PartialOrd.
+//!
+//! ## Prefix
+//! `@BinarySearchPower`
+//!
+//! ## Example
+//! ```
+//! let array = vec![1,2,3,4,5];
+//!
+//! // return vector index;
+//! assert_eq(array.lower_bound_only_asc(2),Some(1));
+//!
+//! // If value is over maximum value of the array, return None.
+//! assert_eq(array.lower_bound_only_asc(6),None);
+//! ```
+
 use cargo_snippet::snippet;
 
 #[snippet("@BinSearchPower")]
@@ -93,7 +115,8 @@ mod test {
             (4, 1)
         );
 
-        let double_array = vec![-0.1, 0.2, 0.3, 0.4, 0.5, 1.5];
+        // f64
+        let double_array: Vec<f64> = vec![-0.1, 0.2, 0.3, 0.4, 0.5, 1.5];
         assert_eq!(
             double_array[double_array.lower_bound_only_asc(0.25).unwrap()],
             0.3
