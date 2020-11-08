@@ -421,7 +421,7 @@ mod test {
 
     #[test]
     fn random_len_sum() {
-        let n = rand::thread_rng().gen::<u8>();
+        let n = rand::thread_rng().gen::<u8>() as usize;
         let mut array = vec![0; n as usize];
         for i in 0..n {
             array[i as usize] = i as usize;
