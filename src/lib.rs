@@ -7,7 +7,7 @@
 //! cd competitive-programming_weapon_blacksmith
 //! cargo install
 //!
-//! cargo cargo snippet -t vscode > atcoder.code-snippets
+//! cargo snippet -t vscode > atcoder.code-snippets
 //! ```
 //!
 //! Place the file atcoder.code-snippets file in .vscode your project directory.
