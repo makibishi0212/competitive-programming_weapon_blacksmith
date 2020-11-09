@@ -117,7 +117,7 @@ impl<T: std::clone::Clone + std::fmt::Debug> SegTree<T> {
                 let section_index = section_and >> xor_digits;
                 return self.segment_array[section_index].clone();
             } else {
-                // XXX000とXXX101なら、(XXX000 - XXX011)と(XXX100 - XXX101)をそれぞれ計算
+                // XXX000とXXX101なら、[XXX000,XXX011)と[XXX100,XXX101)をそれぞれ計算
                 let left_end = section_and + (1 << (xor_digits - 1)) - 1;
                 let right_start = left_end + 1;
 
