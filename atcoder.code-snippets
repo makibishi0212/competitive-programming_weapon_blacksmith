@@ -486,6 +486,50 @@
       "}"
     ]
   },
+  "@enumerate_divisor": {
+    "prefix": "@enumerate_divisor",
+    "body": [
+      "fn enumerate_divisor(n: usize) -> Vec<usize> {",
+      "    let mut i = 1;",
+      "    let mut divisors = vec![];",
+      "    while i * i <= n {",
+      "        if n % i == 0 {",
+      "            divisors.push(i);",
+      "            if i != n / i {",
+      "                divisors.push(n / i);",
+      "            }",
+      "        }",
+      "        i += 1;",
+      "    }",
+      "    divisors.sort();",
+      "    divisors",
+      "}"
+    ]
+  },
+  "@eratosthenes": {
+    "prefix": "@eratosthenes",
+    "body": [
+      "fn eratosthenes(n: usize) -> Vec<usize> {",
+      "    let mut res = Vec::with_capacity(n - 1);",
+      "    for i in 2..=n {",
+      "        res.push(i);",
+      "    }",
+      "    for i in 2..=(n as f64).sqrt() as usize {",
+      "        if res[i - 2] < i {",
+      "            continue;",
+      "        }",
+      "        for j in (i * i..=n).step_by(i) {",
+      "            if res[j - 2] == j {",
+      "                res[j - 2] = i;",
+      "            }",
+      "        }",
+      "    }",
+      "    res.sort();",
+      "    res.dedup();",
+      "    res",
+      "}"
+    ]
+  },
   "@gcd": {
     "prefix": "@gcd",
     "body": [

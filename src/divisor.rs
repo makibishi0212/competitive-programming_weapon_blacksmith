@@ -3,6 +3,7 @@ use std::collections::VecDeque;
 // 約数系
 
 // エラストテネスの篩
+#[snippet("@eratosthenes")]
 fn eratosthenes(n: usize) -> Vec<usize> {
     let mut res = Vec::with_capacity(n - 1);
     for i in 2..=n {
@@ -26,6 +27,7 @@ fn eratosthenes(n: usize) -> Vec<usize> {
 }
 
 // 約数列挙
+#[snippet("@enumerate_divisor")]
 fn enumerate_divisor(n: usize) -> Vec<usize> {
     let mut i = 1;
 
