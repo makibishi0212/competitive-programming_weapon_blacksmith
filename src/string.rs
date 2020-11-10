@@ -118,7 +118,9 @@ fn sa_is(s_i: &[usize], max_s_i: usize) -> Vec<usize> {
         }
     }
 
-    let mut sa = induced_sort(&s_i, &lms, &char_L_count, &char_ranges);
+    let mut sa = vec![0; n];
+
+    induced_sort(&mut sa, &s_i, &lms, &char_L_count, &char_ranges);
 
     if lms_count > 0 {
         let mut sorted_lms = Vec::with_capacity(lms_count);
@@ -148,8 +150,6 @@ fn sa_is(s_i: &[usize], max_s_i: usize) -> Vec<usize> {
                 lms[lms_index[lms2_start]]
             };
 
-            //println!("{}-{} vs {}-{}", lms1_start,lms1_end, lms2_start,lms2_end);
-
             let same = if (lms1_end - lms1_start) != (lms2_end - lms2_start) {
                 // 長さが違うなら、同じであるはずがない
                 false
@@ -167,19 +167,16 @@ fn sa_is(s_i: &[usize], max_s_i: usize) -> Vec<usize> {
             };
 
             if !same {
-                lms_part_nums[lms_index[sorted_lms[i]] - 1] += 1;
-                max_lms_part_index = std::cmp::max(
-                    max_lms_part_index,
-                    lms_part_nums[lms_index[sorted_lms[i]] - 1],
-                );
+                max_lms_part_index += 1;
             }
+            lms_part_nums[lms_index[sorted_lms[i]] - 1] = max_lms_part_index;
         }
         let lms_part_sa = sa_is(&lms_part_nums, max_lms_part_index);
         for i in 0..lms_count {
             sorted_lms[i] = lms[lms_part_sa[i]];
         }
 
-        sa = induced_sort(&s_i, &sorted_lms, &char_L_count, &char_ranges);
+        induced_sort(&mut sa, &s_i, &sorted_lms, &char_L_count, &char_ranges);
     }
 
     sa.iter().map(|index1| index1 - 1).collect()
@@ -187,26 +184,33 @@ fn sa_is(s_i: &[usize], max_s_i: usize) -> Vec<usize> {
 
 // SA-IS法の内部で使われるソート
 fn induced_sort(
+    sa: &mut [usize],
     s_i: &[usize],
     lms: &[usize],
     char_L_count: &[usize],
     char_ranges: &[(usize, usize)],
-) -> Vec<usize> {
+) {
     let n = s_i.len();
-    let mut sa = vec![0; n];
+    for i in sa.iter_mut() {
+        *i = 0;
+    }
 
     // (saのそのインデックスの先頭の文字のs_i[i], L型かどうか)
     let mut index_to_info = vec![(0, true); n];
+    let mut checked = vec![false; char_L_count.len()];
     for i in 0..n {
         let c = s_i[i];
         let c_range = char_ranges[c];
         let mut l_count = char_L_count[c];
-        for j in c_range.0..c_range.1 {
-            let is_L = if l_count != 0 { true } else { false };
-            if l_count != 0 {
-                l_count -= 1;
-            };
-            index_to_info[j] = (c, is_L);
+        if !checked[c] {
+            for j in c_range.0..c_range.1 {
+                let is_L = if l_count != 0 { true } else { false };
+                if l_count != 0 {
+                    l_count -= 1;
+                };
+                index_to_info[j] = (c, is_L);
+            }
+            checked[c] = true;
         }
     }
 
@@ -214,6 +218,7 @@ fn induced_sort(
 
     // (1) saをLMSのインデックスで埋める
     let mut now_char_index = vec![std::usize::MAX; char_L_count.len()];
+
     for &i in lms.iter().rev() {
         let c = s_i[i];
         now_char_index[c] = if now_char_index[c] == std::usize::MAX {
@@ -268,8 +273,6 @@ fn induced_sort(
             char_insert_count[target_c] += 1;
         }
     }
-
-    sa
 }
 
 mod test {
@@ -303,5 +306,22 @@ mod test {
 
         let str_2 = vec!['a', 'b', 'r', 'a', 'c', 'a', 'd', 'a', 'b', 'r', 'a'];
         assert_eq!(suffix_array(&str_2), [10, 7, 0, 3, 5, 8, 1, 4, 6, 9, 2]);
+
+        let str_3 = vec!['a', 'b', 'c', 'b', 'c', 'b', 'a'];
+        assert_eq!(suffix_array(&str_3), [6, 0, 5, 3, 1, 4, 2]);
+
+        let str_4 = vec!['a', 'a', 'a', 'a', 'a', 'a', 'a'];
+        assert_eq!(suffix_array(&str_4), [6, 5, 4, 3, 2, 1, 0]);
+
+        let mut str_5 = vec![];
+        for i in 0..200000 {
+            str_5.push('a');
+        }
+        let mut sa_5 = vec![];
+        for i in (0..200000).rev() {
+            sa_5.push(i);
+        }
+
+        assert_eq!(suffix_array(&str_5), sa_5);
     }
 }
