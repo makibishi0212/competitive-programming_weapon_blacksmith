@@ -36,6 +36,7 @@ pub fn z_algorithm(s: &[char]) -> Vec<usize> {
     z
 }
 
+#[snippet("@suffix_array")]
 pub fn suffix_array(s: &[char]) -> Vec<usize> {
     // 長さnの文字列sの接尾辞(s[i..n),iは0..n-1)としてあり得るものを、辞書順にソートして返す。
     // メモリを無駄に食わないように、文字列そのものの代わりにsuffixの開始位置を返す。
@@ -54,6 +55,7 @@ pub fn suffix_array(s: &[char]) -> Vec<usize> {
     sa_is(&s_i, max_s_i)
 }
 
+#[snippet("@suffix_array")]
 fn sa_is(s_i: &[usize], max_s_i: usize) -> Vec<usize> {
     let n = s_i.len();
     match n {
@@ -183,6 +185,7 @@ fn sa_is(s_i: &[usize], max_s_i: usize) -> Vec<usize> {
 }
 
 // SA-IS法の内部で使われるソート
+#[snippet("@suffix_array")]
 fn induced_sort(
     sa: &mut [usize],
     s_i: &[usize],
