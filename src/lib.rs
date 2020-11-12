@@ -12,6 +12,7 @@
 //!
 //! Place the file `atcoder.code-snippets` file in .vscode your project directory.
 
+pub mod binary_index_tree;
 pub mod binary_search;
 pub mod combination_mod;
 pub mod divisor;
