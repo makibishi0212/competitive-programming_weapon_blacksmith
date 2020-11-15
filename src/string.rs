@@ -2,7 +2,8 @@
 //!
 //! ### About
 //!
-//! calc suffix array of Vec<char>
+//! calc suffix array of Vec<char>.
+//!
 //! verified by https://judge.yosupo.jp/submission/29408
 //!
 //! ### Prefix

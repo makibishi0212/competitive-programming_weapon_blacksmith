@@ -52,7 +52,6 @@ fn floor_sum(n: i64, m: i64, mut a: i64, mut b: i64) -> i64 {
 
 mod test {
     use super::*;
-    //extern crate proptest;
     use proptest::prelude::*;
     #[test]
     fn gcd_test() {

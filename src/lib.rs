@@ -19,6 +19,7 @@ pub mod divisor;
 pub mod lazy_seg_tree;
 pub mod math;
 pub mod maximumflow;
+pub mod next_permutation;
 pub mod seg_tree;
 pub mod string;
 pub mod toporogical_sort;
