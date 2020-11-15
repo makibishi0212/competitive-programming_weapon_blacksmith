@@ -1,5 +1,4 @@
 use cargo_snippet::snippet;
-use std::collections::VecDeque;
 // 約数系
 
 // エラストテネスの篩

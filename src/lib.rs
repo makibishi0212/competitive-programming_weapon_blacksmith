@@ -17,7 +17,7 @@ pub mod binary_search;
 pub mod combination_mod;
 pub mod divisor;
 pub mod lazy_seg_tree;
-pub mod lcm;
+pub mod math;
 pub mod maximumflow;
 pub mod seg_tree;
 pub mod string;
