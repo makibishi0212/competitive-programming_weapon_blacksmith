@@ -1,3 +1,14 @@
+//! ## suffix_array
+//!
+//! ### About
+//!
+//! calc suffix array of Vec<char>
+//! verified by https://judge.yosupo.jp/submission/29408
+//!
+//! ### Prefix
+//! `@suffix_array`
+//!
+
 use cargo_snippet::snippet;
 
 fn lcp_array() {

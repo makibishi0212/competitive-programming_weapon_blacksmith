@@ -1,4 +1,6 @@
-//! ## About
+//! ## BinarySearchPower
+//!
+//! ### About
 //!
 //! This is not function. Extra implement for Vec\<T\>.
 //!
@@ -6,10 +8,10 @@
 //!
 //! Your vector must be sorted. And `T` must implement std::cmp::PartialOrd.
 //!
-//! ## Prefix
+//! ### Prefix
 //! `@BinarySearchPower`
 //!
-//! ## Example
+//! ### Example
 //! ```
 //! let array = vec![1,2,3,4,5];
 //!
