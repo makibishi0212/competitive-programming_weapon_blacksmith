@@ -602,6 +602,32 @@
       "}"
     ]
   },
+  "@floor_sum": {
+    "prefix": "@floor_sum",
+    "body": [
+      "fn floor_sum(n: i64, m: i64, mut a: i64, mut b: i64) -> i64 {",
+      "    let mut ans = 0;",
+      "    if a >= m {",
+      "        let q_a = a / m;",
+      "        ans += n * (n - 1) * q_a / 2;",
+      "        a %= m;",
+      "    }",
+      "    if b >= m {",
+      "        let q_b = b / m;",
+      "        ans += n * q_b;",
+      "        b %= m;",
+      "    }",
+      "    let y_max = (a * n + b) / m;",
+      "    let x_max = y_max * m - b;",
+      "    if y_max == 0 {",
+      "        return ans;",
+      "    }",
+      "    ans += (n - (x_max + a - 1) / a) * y_max;",
+      "    ans += floor_sum(y_max, a, m, (a - x_max % a) % a);",
+      "    ans",
+      "}"
+    ]
+  },
   "@gcd": {
     "prefix": "@gcd",
     "body": [
