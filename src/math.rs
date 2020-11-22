@@ -50,6 +50,11 @@ fn floor_sum(n: i64, m: i64, mut a: i64, mut b: i64) -> i64 {
     ans
 }
 
+#[snippet("@ceil")]
+fn ceil(top: usize, bottom: usize) -> usize {
+    (top + bottom - 1) / bottom
+}
+
 mod test {
     use super::*;
     use proptest::prelude::*;
@@ -82,12 +87,34 @@ mod test {
         assert_eq!(floor_sum(332955, 5590132, 2231, 999423), 22014575);
     }
 
+    #[test]
+    fn ceil_test() {
+        assert_eq!(ceil(6, 2), 3);
+        assert_eq!(ceil(7, 2), 4);
+        assert_eq!(ceil(8, 2), 4);
+        assert_eq!(ceil(10000, 2), 5000);
+        assert_eq!(ceil(10001, 2), 5001);
+    }
+
     proptest! {
       #[test]
       fn lcm_random_num(a :u16, b :u16) {
           let a = a as usize;
           let b = b as usize;
         prop_assert!(gcd(a,b) * lcm(a,b) == a*b);
+      }
+
+      #[test]
+      fn ceil_random_num(a :u16, b :u16) {
+        let a = a as usize;
+        let b = b as usize;
+        let big = std::cmp::max(a,b);
+        let small = std::cmp::min(a,b);
+        if big % small != 0 {
+            prop_assert!(ceil(big, small) == big/small+1);
+        }else {
+            prop_assert!(ceil(big, small) == big/small);
+        }
       }
     }
 }
