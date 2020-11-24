@@ -13,4 +13,7 @@
 //! Place the file `atcoder.code-snippets` file in .vscode your project directory.
 
 pub mod data_structure;
+pub mod graph;
 pub mod math;
+pub mod power;
+pub mod string;
