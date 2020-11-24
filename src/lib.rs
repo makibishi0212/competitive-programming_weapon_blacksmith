@@ -12,15 +12,5 @@
 //!
 //! Place the file `atcoder.code-snippets` file in .vscode your project directory.
 
-pub mod binary_index_tree;
-pub mod binary_search;
-pub mod combination_mod;
-pub mod divisor;
-pub mod lazy_seg_tree;
+pub mod data_structure;
 pub mod math;
-pub mod maximumflow;
-pub mod next_permutation;
-pub mod seg_tree;
-pub mod string;
-pub mod toporogical_sort;
-pub mod unionfind;
