@@ -524,6 +524,14 @@
       "}"
     ]
   },
+  "@ceil": {
+    "prefix": "@ceil",
+    "body": [
+      "fn ceil(top: usize, bottom: usize) -> usize {",
+      "    (top + bottom - 1) / bottom",
+      "}"
+    ]
+  },
   "@combination_mod": {
     "prefix": "@combination_mod",
     "body": [
@@ -678,6 +686,40 @@
       "}"
     ]
   },
+  "@next_permutation": {
+    "prefix": "@next_permutation",
+    "body": [
+      "fn next_permutation<T: std::cmp::PartialOrd>(array: &mut [T]) -> Option<usize> {",
+      "    let n = array.len();",
+      "    if n < 2 {",
+      "        return None;",
+      "    }",
+      "    let mut desc_begin_index = n - 1;",
+      "    for i in (0..n - 1).rev() {",
+      "        if array[i] <= array[i + 1] {",
+      "            break;",
+      "        }",
+      "        desc_begin_index = i;",
+      "    }",
+      "    if desc_begin_index == 0 {",
+      "        array.reverse();",
+      "        return None;",
+      "    }",
+      "    desc_begin_index -= 1;",
+      "    let pivot = &array[desc_begin_index];",
+      "    let mut swap_to = n;",
+      "    for i in (desc_begin_index..n).rev() {",
+      "        if array[i] > *pivot {",
+      "            swap_to = i;",
+      "            break;",
+      "        }",
+      "    }",
+      "    array.swap(desc_begin_index, swap_to);",
+      "    array[desc_begin_index + 1..n].reverse();",
+      "    Some(desc_begin_index)",
+      "}"
+    ]
+  },
   "@power_mod": {
     "prefix": "@power_mod",
     "body": [
@@ -689,6 +731,40 @@
       "    } else {",
       "        return power_mod(base, exp - 1, modulo) % modulo * base % modulo;",
       "    }",
+      "}"
+    ]
+  },
+  "@prev_permutation": {
+    "prefix": "@prev_permutation",
+    "body": [
+      "fn prev_permutation<T: std::cmp::PartialOrd>(array: &mut [T]) -> Option<usize> {",
+      "    let n = array.len();",
+      "    if n < 2 {",
+      "        return None;",
+      "    }",
+      "    let mut asc_begin_index = n - 1;",
+      "    for i in (0..n - 1).rev() {",
+      "        if array[i] >= array[i + 1] {",
+      "            break;",
+      "        }",
+      "        asc_begin_index = i;",
+      "    }",
+      "    if asc_begin_index == 0 {",
+      "        array.reverse();",
+      "        return None;",
+      "    }",
+      "    asc_begin_index -= 1;",
+      "    let pivot = &array[asc_begin_index];",
+      "    let mut swap_to = n;",
+      "    for i in (asc_begin_index..n).rev() {",
+      "        if array[i] < *pivot {",
+      "            swap_to = i;",
+      "            break;",
+      "        }",
+      "    }",
+      "    array.swap(asc_begin_index, swap_to);",
+      "    array[asc_begin_index + 1..n].reverse();",
+      "    Some(asc_begin_index)",
       "}"
     ]
   },
