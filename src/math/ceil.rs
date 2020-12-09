@@ -21,7 +21,7 @@ mod test {
     proptest! {
       #[test]
       fn ceil_random_num(a :u16, b :u16) {
-        let a = a as usize;
+        let a = a as usize+1;
         let b = b as usize;
         let big = std::cmp::max(a,b);
         let small = std::cmp::min(a,b);

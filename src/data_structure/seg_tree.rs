@@ -69,7 +69,7 @@ impl<T: std::clone::Clone + std::fmt::Debug> SegTree<T> {
     }
 
     // 1つの要素を更新する
-    pub fn update(&mut self, index: usize, new_value: T) {
+    pub fn set(&mut self, index: usize, new_value: T) {
         let origin_start_index = self.segment_array.len() >> 1;
 
         let mut target_index = origin_start_index + index;
@@ -173,7 +173,7 @@ mod test {
         assert_eq!(cum_sum.get(4), 5);
         assert_eq!(cum_sum.get(7), 8);
 
-        cum_sum.update(0, 10);
+        cum_sum.set(0, 10);
         assert_eq!(cum_sum.get(0), 10);
         assert_eq!(cum_sum.query(0, 4), 19);
         assert_eq!(cum_sum.query(2, 6), 18);
@@ -181,7 +181,7 @@ mod test {
         assert_eq!(cum_sum.query(3, 8), 30);
         assert_eq!(cum_sum.query(0, 9), 54);
 
-        cum_sum.update(4, 55);
+        cum_sum.set(4, 55);
         assert_eq!(cum_sum.get(4), 55);
         assert_eq!(cum_sum.query(0, 4), 19);
         assert_eq!(cum_sum.query(2, 6), 68);
@@ -189,7 +189,7 @@ mod test {
         assert_eq!(cum_sum.query(3, 8), 80);
         assert_eq!(cum_sum.query(0, 9), 104);
 
-        cum_sum.update(4, 5);
+        cum_sum.set(4, 5);
         assert_eq!(cum_sum.get(4), 5);
         assert_eq!(cum_sum.query(0, 4), 19);
         assert_eq!(cum_sum.query(2, 6), 18);
@@ -206,21 +206,21 @@ mod test {
         assert_eq!(max_value.query(3, 8), 8);
         assert_eq!(max_value.query(0, 9), 9);
 
-        max_value.update(0, 10);
+        max_value.set(0, 10);
         assert_eq!(max_value.query(0, 4), 10);
         assert_eq!(max_value.query(2, 6), 6);
         assert_eq!(max_value.query(4, 10), 10);
         assert_eq!(max_value.query(3, 8), 8);
         assert_eq!(max_value.query(0, 9), 10);
 
-        max_value.update(4, 55);
+        max_value.set(4, 55);
         assert_eq!(max_value.query(0, 4), 10);
         assert_eq!(max_value.query(2, 6), 55);
         assert_eq!(max_value.query(4, 10), 55);
         assert_eq!(max_value.query(3, 8), 55);
         assert_eq!(max_value.query(0, 9), 55);
 
-        max_value.update(4, 5);
+        max_value.set(4, 5);
         assert_eq!(max_value.query(0, 4), 10);
         assert_eq!(max_value.query(2, 6), 6);
         assert_eq!(max_value.query(4, 10), 10);
@@ -236,21 +236,21 @@ mod test {
         assert_eq!(min_value.query(3, 8), 4);
         assert_eq!(min_value.query(0, 9), 1);
 
-        min_value.update(0, 10);
+        min_value.set(0, 10);
         assert_eq!(min_value.query(0, 4), 2);
         assert_eq!(min_value.query(2, 6), 3);
         assert_eq!(min_value.query(4, 10), 5);
         assert_eq!(min_value.query(3, 8), 4);
         assert_eq!(min_value.query(0, 9), 2);
 
-        min_value.update(4, 55);
+        min_value.set(4, 55);
         assert_eq!(min_value.query(0, 4), 2);
         assert_eq!(min_value.query(2, 6), 3);
         assert_eq!(min_value.query(4, 10), 6);
         assert_eq!(min_value.query(3, 8), 4);
         assert_eq!(min_value.query(0, 9), 2);
 
-        min_value.update(4, 5);
+        min_value.set(4, 5);
         assert_eq!(min_value.query(0, 4), 2);
         assert_eq!(min_value.query(2, 6), 3);
         assert_eq!(min_value.query(4, 10), 5);
@@ -312,7 +312,7 @@ mod test {
             vec![135, 57, 43, 38, 26, 19, 17, 8, 6]
         );
 
-        desc_array.update(0, vec![10]);
+        desc_array.set(0, vec![10]);
         assert_eq!(desc_array.query(0, 4), vec![19, 17, 10, 8]);
         assert_eq!(desc_array.query(2, 6), vec![38, 19, 17, 6]);
         assert_eq!(desc_array.query(4, 10), vec![135, 57, 43, 38, 6, 0]);
@@ -322,7 +322,7 @@ mod test {
             vec![135, 57, 43, 38, 19, 17, 10, 8, 6]
         );
 
-        desc_array.update(4, vec![138]);
+        desc_array.set(4, vec![138]);
         assert_eq!(desc_array.query(0, 4), vec![19, 17, 10, 8]);
         assert_eq!(desc_array.query(2, 6), vec![138, 38, 19, 17]);
         assert_eq!(desc_array.query(4, 10), vec![138, 135, 57, 43, 38, 0]);
@@ -332,7 +332,7 @@ mod test {
             vec![138, 135, 57, 43, 38, 19, 17, 10, 8]
         );
 
-        desc_array.update(4, vec![6]);
+        desc_array.set(4, vec![6]);
         assert_eq!(desc_array.query(0, 4), vec![19, 17, 10, 8]);
         assert_eq!(desc_array.query(2, 6), vec![38, 19, 17, 6]);
         assert_eq!(desc_array.query(4, 10), vec![135, 57, 43, 38, 6, 0]);
