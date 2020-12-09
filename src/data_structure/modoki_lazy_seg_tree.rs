@@ -1,7 +1,7 @@
 // [TLE]
 
 pub struct LazySegTree<T: std::clone::Clone + std::fmt::Debug, U: std::clone::Clone> {
-    // operation(a,b) = operation(b,a)、operation(a,operation(b,c)) = operation(operation(a,b),c)の必要がある
+    // operation,effector,resolve_effectはそれぞれ、f(a,b) = f(b,a)、f(a,f(b,c)) = f(f(a,b),c) を満たす必要がある
     // 区間に対するクエリの処理
     operation: fn(&T, &T) -> T,
 
@@ -286,7 +286,7 @@ impl<T: std::clone::Clone + std::fmt::Debug, U: std::clone::Clone> std::fmt::Deb
 }
 
 #[test]
-fn lazy_seg_tree_test() {
+fn modoki_lazy_seg_tree_test() {
     let mut cum_sum = LazySegTree::new(
         vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
         |&a, &b| a + b,
