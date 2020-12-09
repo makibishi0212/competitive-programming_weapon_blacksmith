@@ -6,7 +6,8 @@ pub struct LazySegTree<
     T: std::clone::Clone + std::fmt::Debug,
     U: std::clone::Clone + std::fmt::Debug,
 > {
-    // operation(a,b) = operation(b,a)、operation(a,operation(b,c)) = operation(operation(a,b),c)の必要がある
+    // operation,effector,resolve_effectはそれぞれ、f(a,b) = f(b,a)、f(a,f(b,c)) = f(f(a,b),c) を満たす必要がある
+    // operation、effectorは, effector(operation(a,b),c) = operation(effector(a,c),effector(b,c))を満たす必要がある
     // 区間に対するクエリの処理
     operation: fn(T, T) -> T,
 
