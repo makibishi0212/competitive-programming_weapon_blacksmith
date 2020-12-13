@@ -22,7 +22,7 @@ mod test {
       #[test]
       fn ceil_random_num(a :u16, b :u16) {
         let a = a as usize+1;
-        let b = b as usize;
+        let b = b as usize+1;
         let big = std::cmp::max(a,b);
         let small = std::cmp::min(a,b);
         if big % small != 0 {

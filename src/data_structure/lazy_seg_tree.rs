@@ -1,4 +1,3 @@
-// [TLE]
 use cargo_snippet::snippet;
 
 #[snippet("@LazySegTree")]
@@ -7,7 +6,8 @@ pub struct LazySegTree<
     U: std::clone::Clone + std::fmt::Debug,
 > {
     // operation,effector,resolve_effectはそれぞれ、f(a,b) = f(b,a)、f(a,f(b,c)) = f(f(a,b),c) を満たす必要がある
-    // operation、effectorは, effector(operation(a,b),c) = operation(effector(a,c),effector(b,c))を満たす必要がある
+    // operation、effectorは,
+    // effector(operation(a,b),c) = operation(effector(a,c),effector(b,c))を満たす必要がある
     // 区間に対するクエリの処理
     operation: fn(T, T) -> T,
 
@@ -71,17 +71,13 @@ impl<T: std::clone::Clone + std::fmt::Debug, U: std::clone::Clone + std::fmt::De
         assert!(left_index < right_index && right_index <= self.origin_power);
         left_index += self.origin_power;
         right_index += self.origin_power;
-        println!("[{},{})", left_index, right_index);
 
         for i in (1..=self.log).rev() {
-            //println!("{:?} and {:?}", left_index >> i, right_index >> i);
             if ((left_index >> i) << i) != left_index {
                 self.push(left_index >> i);
-                println!("push! {}", left_index >> i);
             }
             if ((right_index >> i) << i) != right_index {
                 self.push(right_index >> i);
-                println!("push! {}", right_index >> i);
             }
         }
 
@@ -91,10 +87,6 @@ impl<T: std::clone::Clone + std::fmt::Debug, U: std::clone::Clone + std::fmt::De
         let mut right_value = None;
 
         while left_index < right_index {
-            println!(
-                "{}-{} {:?},{:?}",
-                left_index, right_index, left_value, right_value
-            );
             if left_index & 1 != 0 {
                 left_value = if left_value.is_some() && self.segment_array[left_index].is_some() {
                     let operation = self.operation;
@@ -128,14 +120,6 @@ impl<T: std::clone::Clone + std::fmt::Debug, U: std::clone::Clone + std::fmt::De
             left_index >>= 1;
             right_index >>= 1;
         }
-
-        println!(
-            "{}-{} {:?},{:?}",
-            left_index, right_index, left_value, right_value
-        );
-
-        println!("{:?}", self.segment_array);
-        println!("{:?}", self.lazy_array);
 
         if left_value.is_some() && right_value.is_some() {
             operation(left_value.clone().unwrap(), right_value.clone().unwrap())

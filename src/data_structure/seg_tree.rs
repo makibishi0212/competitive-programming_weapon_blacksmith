@@ -2,136 +2,133 @@ use cargo_snippet::snippet;
 
 #[snippet("@SegTree")]
 pub struct SegTree<T: std::clone::Clone + std::fmt::Debug> {
-    // operation(a,b) = operation(b,a)、operation(a,operation(b,c)) = operation(operation(a,b),c)の必要がある
-    operation: fn(&T, &T) -> T,
+    // operationはf(a,b) = f(b,a)、f(a,f(b,c)) = f(f(a,b),c) を満たす必要がある
+    // 区間に対するクエリの処理
+    operation: fn(T, T) -> T,
     segment_array: Vec<Option<T>>,
+    origin_length: usize,
+    origin_power: usize,
+    log: usize,
 }
 
 #[snippet("@SegTree")]
 impl<T: std::clone::Clone + std::fmt::Debug> SegTree<T> {
-    pub fn new(array: Vec<T>, operation: fn(&T, &T) -> T) -> SegTree<T> {
+    pub fn new(array: Vec<T>, operation: fn(T, T) -> T) -> SegTree<T> {
         let origin_length = array.len();
-        let mut all_array_length = 1;
-        while origin_length * 2 > all_array_length {
-            all_array_length <<= 1;
+        let mut power = 1;
+        let mut log = 0;
+        while origin_length > power {
+            power <<= 1;
+            log += 1;
         }
 
-        let mut segment_array: Vec<Option<T>> = vec![None; all_array_length];
-        let mut target_index = all_array_length >> 1;
+        let mut segment_array: Vec<Option<T>> = vec![None; 2 * power];
 
-        // 最初に元々の値を埋める
-        for i in 0..origin_length {
-            segment_array[i + target_index] = Some(array[i].clone());
+        for i in power..(power + origin_length) {
+            segment_array[i] = Some(array[i - power].clone());
         }
 
-        // 元々の値を使って区間の値を埋めていく
-        target_index -= 1;
-        while target_index != 0 {
-            let left_index = target_index << 1;
-            let right_index = (target_index << 1) + 1;
-
-            let value = if let Some(left) = &segment_array[left_index] {
-                if let Some(right) = &segment_array[right_index] {
-                    Some(operation(&left, &right))
-                } else {
-                    Some(left.clone())
-                }
-            } else {
-                if let Some(right) = &segment_array[right_index] {
-                    Some(right.clone())
-                } else {
-                    None
-                }
-            };
-            segment_array[target_index] = value;
-            target_index -= 1;
-        }
-
-        SegTree {
+        let mut seg_tree = SegTree {
             operation,
             segment_array,
-        }
-    }
-
-    // [start_index,end_index)でクエリに答える
-    pub fn query(&self, start_index: usize, end_index: usize) -> T {
-        if start_index >= end_index {
-            panic!();
-        }
-        let origin_start_index = self.segment_array.len() >> 1;
-        let internal_start = origin_start_index + start_index;
-        let internal_end = origin_start_index + end_index - 1;
-
-        return match self.calc_section(internal_start, internal_end) {
-            Some(x) => x,
-            None => panic!(),
+            origin_length,
+            origin_power: power,
+            log,
         };
+
+        for i in (1..power).rev() {
+            seg_tree.update(i);
+        }
+
+        seg_tree
     }
 
-    // 1つの要素を更新する
-    pub fn set(&mut self, index: usize, new_value: T) {
-        let origin_start_index = self.segment_array.len() >> 1;
+    // [left,right)でクエリに答える
+    pub fn query(&mut self, mut left_index: usize, mut right_index: usize) -> T {
+        assert!(left_index < right_index && right_index <= self.origin_power);
+        left_index += self.origin_power;
+        right_index += self.origin_power;
 
-        let mut target_index = origin_start_index + index;
-        self.segment_array[target_index] = Some(new_value);
-        target_index >>= 1;
-        while target_index != 0 {
-            let new_segment_value = if let Some(left) = &self.segment_array[target_index << 1] {
-                if let Some(right) = &self.segment_array[(target_index << 1) + 1] {
+        let operation = self.operation;
+
+        let mut left_value = None;
+        let mut right_value = None;
+
+        while left_index < right_index {
+            if left_index & 1 != 0 {
+                left_value = if left_value.is_some() && self.segment_array[left_index].is_some() {
                     let operation = self.operation;
-                    operation(&left, &right)
+
+                    Some(operation(
+                        left_value.unwrap(),
+                        self.segment_array[left_index].clone().unwrap(),
+                    ))
+                } else if self.segment_array[left_index].is_some() {
+                    Some(self.segment_array[left_index].clone().unwrap())
                 } else {
-                    left.clone()
-                }
-            } else {
-                panic!()
-            };
+                    left_value
+                };
 
-            self.segment_array[target_index] = Some(new_segment_value);
+                left_index += 1;
+            }
+            if right_index & 1 != 0 {
+                right_index -= 1;
+                right_value = if right_value.is_some() && self.segment_array[right_index].is_some()
+                {
+                    Some(operation(
+                        self.segment_array[right_index].clone().unwrap(),
+                        right_value.unwrap(),
+                    ))
+                } else if self.segment_array[right_index].is_some() {
+                    Some(self.segment_array[right_index].clone().unwrap())
+                } else {
+                    right_value
+                };
+            }
+            left_index >>= 1;
+            right_index >>= 1;
+        }
 
-            target_index >>= 1;
+        if left_value.is_some() && right_value.is_some() {
+            operation(left_value.clone().unwrap(), right_value.clone().unwrap())
+        } else if left_value.is_some() {
+            left_value.clone().unwrap()
+        } else if right_value.is_some() {
+            right_value.clone().unwrap()
+        } else {
+            panic!()
         }
     }
 
-    pub fn get(&self, index: usize) -> T {
-        let origin_start_index = self.segment_array.len() >> 1;
+    fn update(&mut self, index: usize) {
+        let operation = self.operation;
+        let a = self.segment_array[2 * index].clone();
+        let b = self.segment_array[2 * index + 1].clone();
+        let value = if a.is_some() && b.is_some() {
+            Some(operation(a.unwrap(), b.unwrap()))
+        } else if a.is_some() {
+            Some(a.unwrap())
+        } else if b.is_some() {
+            Some(b.unwrap())
+        } else {
+            None
+        };
 
-        let mut target_index = origin_start_index + index;
-
-        self.segment_array[target_index].clone().unwrap()
+        self.segment_array[index] = value;
     }
 
-    // 内部
-    fn calc_section(&self, internal_start: usize, internal_end: usize) -> Option<T> {
-        if internal_start == internal_end {
-            return self.segment_array[internal_start].clone();
-        } else {
-            let section_and = internal_start & internal_end;
-            let end_offset = section_and ^ internal_end;
-            // CAUTION: 64bit only
-            let xor_digits = 64 - end_offset.leading_zeros();
+    pub fn get(&mut self, mut index: usize) -> T {
+        assert!(index < self.origin_length);
+        index += self.origin_power;
+        self.segment_array[index].clone().unwrap()
+    }
 
-            // start,endがXXX000とXXX111のような形になっている
-            if xor_digits == end_offset.count_ones() {
-                // XXX000とXXX111ならXXX部分を取り出す
-                let section_index = section_and >> xor_digits;
-                return self.segment_array[section_index].clone();
-            } else {
-                // XXX000とXXX101なら、[XXX000,XXX011)と[XXX100,XXX101)をそれぞれ計算
-                let left_end = section_and + (1 << (xor_digits - 1)) - 1;
-                let right_start = left_end + 1;
-
-                if let Some(left) = self.calc_section(internal_start, left_end) {
-                    if let Some(right) = self.calc_section(right_start, internal_end) {
-                        let operation = self.operation;
-                        return Some(operation(&left, &right));
-                    } else {
-                        return Some(left);
-                    }
-                } else {
-                    panic!()
-                }
-            }
+    pub fn set(&mut self, mut index: usize, new_value: T) {
+        assert!(index < self.origin_length);
+        index += self.origin_power;
+        self.segment_array[index] = Some(new_value);
+        for i in 1..=self.log {
+            self.update(index >> i);
         }
     }
 }
@@ -163,7 +160,7 @@ mod test {
     use std::i64::MAX;
     #[test]
     fn seg_tree_test() {
-        let mut cum_sum = SegTree::new(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10], |&a, &b| a + b);
+        let mut cum_sum = SegTree::new(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10], |a, b| a + b);
         assert_eq!(cum_sum.query(0, 4), 10);
         assert_eq!(cum_sum.query(2, 6), 18);
         assert_eq!(cum_sum.query(4, 10), 45);
@@ -197,7 +194,7 @@ mod test {
         assert_eq!(cum_sum.query(3, 8), 30);
         assert_eq!(cum_sum.query(0, 9), 54);
 
-        let mut max_value = SegTree::new(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10], |&a, &b| {
+        let mut max_value = SegTree::new(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10], |a, b| {
             std::cmp::max(a, b)
         });
         assert_eq!(max_value.query(0, 4), 4);
@@ -227,7 +224,7 @@ mod test {
         assert_eq!(max_value.query(3, 8), 8);
         assert_eq!(max_value.query(0, 9), 10);
 
-        let mut min_value = SegTree::new(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10], |&a, &b| {
+        let mut min_value = SegTree::new(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10], |a, b| {
             std::cmp::min(a, b)
         });
         assert_eq!(min_value.query(0, 4), 1);
@@ -257,7 +254,7 @@ mod test {
         assert_eq!(min_value.query(3, 8), 4);
         assert_eq!(min_value.query(0, 9), 2);
 
-        let desc_vec = |v1: &Vec<usize>, v2: &Vec<usize>| {
+        let desc_vec = |v1: Vec<usize>, v2: Vec<usize>| {
             let mut new_array: Vec<usize> = Vec::new();
             let mut v1_index = 0;
             let mut v2_index = 0;
@@ -342,7 +339,7 @@ mod test {
             vec![135, 57, 43, 38, 19, 17, 10, 8, 6]
         );
 
-        let combine_sorted_vec = |v1: &Vec<usize>, v2: &Vec<usize>| {
+        let combine_sorted_vec = |v1: Vec<usize>, v2: Vec<usize>| {
             let mut new_array: Vec<usize> = Vec::new();
             let mut v1_index = 0;
             let mut v2_index = 0;
@@ -373,7 +370,7 @@ mod test {
             new_array
         };
 
-        let sorted_array = SegTree::new(
+        let mut sorted_array = SegTree::new(
             vec![
                 vec![26],
                 vec![8],
@@ -409,7 +406,7 @@ mod test {
             .collect::<Vec<_>>();
         let sin_array = array.clone();
 
-        let mut segTree = SegTree::new(array, |a, b| cmp::min(*a, *b));
+        let mut segTree = SegTree::new(array, |a, b| cmp::min(a, b));
         for i in 0..n {
             let mut min = MAX;
             for j in 0..(i + 1) {
