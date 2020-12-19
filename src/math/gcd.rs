@@ -20,6 +20,17 @@ fn lcm(a: usize, b: usize) -> usize {
     a / gcd(a, b) * b
 }
 
+// 拡張ユークリッド ax+by=gcd(a,b)を解き、x,yを返す
+#[snippet("@extgcd")]
+fn extgcd(a: i64, b: i64) -> (i64, i64) {
+    if b == 0 {
+        return (1, 0);
+    }
+
+    let d = extgcd(b, a % b);
+    return (d.1, d.0 - a / b * d.1);
+}
+
 mod test {
     use super::*;
     use proptest::prelude::*;
@@ -41,12 +52,29 @@ mod test {
         assert_eq!(lcm(1267, 741238), 939148546);
     }
 
+    fn extgcd_test() {
+        assert_eq!(extgcd(111, 30), (3, -11));
+    }
+
     proptest! {
       #[test]
       fn lcm_random_num(a :u16, b :u16) {
           let a = a as usize;
           let b = b as usize;
         prop_assert!(gcd(a,b) * lcm(a,b) == a*b);
+      }
+
+      #[test]
+      fn extgcd_random_num(a :u16, b :u16) {
+          let a = a as i64;
+          let b = b as i64;
+
+          let gcd_num = gcd(a as usize, b as usize) as i64;
+          let x_y = extgcd(a, b);
+          let x = x_y.0;
+          let y = x_y.1;
+
+        prop_assert!(a*x+b*y == gcd_num);
       }
     }
 }
