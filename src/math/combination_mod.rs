@@ -1,8 +1,8 @@
 use cargo_snippet::snippet;
 
 #[snippet("@power_mod")]
-#[snippet("@inverse_mod")]
-#[snippet("@combination_mod")]
+#[snippet("@inverse_mod_prime")]
+#[snippet("@combination_mod_prime")]
 fn power_mod(base: usize, exp: usize, modulo: usize) -> usize {
     if exp == 0 {
         return 1;
@@ -13,16 +13,16 @@ fn power_mod(base: usize, exp: usize, modulo: usize) -> usize {
     }
 }
 
-#[snippet("@inverse_mod")]
-#[snippet("@combination_mod")]
+#[snippet("@inverse_mod_prime")]
+#[snippet("@combination_mod_prime")]
 // 逆元
-fn inverse_mod(element: usize, prime_modulo: usize) -> usize {
+fn inverse_mod_prime(element: usize, prime_modulo: usize) -> usize {
     // フェルマーの小定理からpが素数なら a^(p-1) = 1
     // よってa*a^(p-2) = 1 より a^(p-2)がaの逆元
     power_mod(element, prime_modulo - 2, prime_modulo) % prime_modulo
 }
 
-#[snippet("@combination_mod")]
+#[snippet("@combination_mod_prime")]
 fn permutation_mod(m: usize, n: usize, prime_modulo: usize) -> usize {
     // m P n = m! / (m - n)!
     //       = m*(m-1)*(m-2)*...*(m-n+1)
@@ -35,8 +35,8 @@ fn permutation_mod(m: usize, n: usize, prime_modulo: usize) -> usize {
     numerator
 }
 
-#[snippet("@combination_mod")]
-fn combination_mod(m: usize, n: usize, prime_modulo: usize) -> usize {
+#[snippet("@combination_mod_prime")]
+fn combination_mod_prime(m: usize, n: usize, prime_modulo: usize) -> usize {
     // m C n = m! / ( n! * (m - n)! )
     //       = m*(m-1)*(m-2)*...*(m-n+1)/n!
     //       = m*(m-1)*(m-2)*...*(m-n+1) * (n!)^-1
@@ -48,7 +48,7 @@ fn combination_mod(m: usize, n: usize, prime_modulo: usize) -> usize {
         element *= j;
         element %= prime_modulo;
     }
-    permutation * inverse_mod(element, prime_modulo) % prime_modulo
+    permutation * inverse_mod_prime(element, prime_modulo) % prime_modulo
 }
 
 const LARGE_PRIME: usize = 1_000_000_007;
@@ -71,32 +71,35 @@ fn power_mod_test() {
 
 #[test]
 fn inverse_mod_test() {
-    assert_eq!(inverse_mod(700, 11), 8);
-    assert_eq!(inverse_mod(3, 2), 1);
-    assert_eq!(inverse_mod(1, 2), 1);
-    assert_eq!(inverse_mod(1, 11), 1);
-    assert_eq!(inverse_mod(1, 53), 1);
-    assert_eq!(inverse_mod(1, LARGE_PRIME), 1);
-    assert_eq!((99 * inverse_mod(99, LARGE_PRIME)) % LARGE_PRIME, 1);
-    assert_eq!((558 * inverse_mod(558, LARGE_PRIME)) % LARGE_PRIME, 1);
-    assert_eq!((77777 * inverse_mod(77777, LARGE_PRIME)) % LARGE_PRIME, 1);
+    assert_eq!(inverse_mod_prime(700, 11), 8);
+    assert_eq!(inverse_mod_prime(3, 2), 1);
+    assert_eq!(inverse_mod_prime(1, 2), 1);
+    assert_eq!(inverse_mod_prime(1, 11), 1);
+    assert_eq!(inverse_mod_prime(1, 53), 1);
+    assert_eq!(inverse_mod_prime(1, LARGE_PRIME), 1);
+    assert_eq!((99 * inverse_mod_prime(99, LARGE_PRIME)) % LARGE_PRIME, 1);
+    assert_eq!((558 * inverse_mod_prime(558, LARGE_PRIME)) % LARGE_PRIME, 1);
     assert_eq!(
-        (4321321 * inverse_mod(4321321, LARGE_PRIME)) % LARGE_PRIME,
+        (77777 * inverse_mod_prime(77777, LARGE_PRIME)) % LARGE_PRIME,
+        1
+    );
+    assert_eq!(
+        (4321321 * inverse_mod_prime(4321321, LARGE_PRIME)) % LARGE_PRIME,
         1
     );
 }
 
 #[test]
 fn permutation_mod_test() {
-    assert_eq!(combination_mod(5, 0, LARGE_PRIME), 1);
-    assert_eq!(combination_mod(5, 1, LARGE_PRIME), 5);
-    assert_eq!(combination_mod(5, 2, LARGE_PRIME), 10);
-    assert_eq!(combination_mod(5, 3, LARGE_PRIME), 10);
-    assert_eq!(combination_mod(5, 4, LARGE_PRIME), 5);
-    assert_eq!(combination_mod(5, 5, LARGE_PRIME), 1);
-    assert_eq!(combination_mod(4, 2, LARGE_PRIME), 6);
-    assert_eq!(combination_mod(7, 4, LARGE_PRIME), 35);
-    assert_eq!(combination_mod(10, 10, LARGE_PRIME), 1);
-    assert_eq!(combination_mod(20, 10, LARGE_PRIME), 184756);
-    assert_eq!(combination_mod(777, 77, LARGE_PRIME), 494594013);
+    assert_eq!(combination_mod_prime(5, 0, LARGE_PRIME), 1);
+    assert_eq!(combination_mod_prime(5, 1, LARGE_PRIME), 5);
+    assert_eq!(combination_mod_prime(5, 2, LARGE_PRIME), 10);
+    assert_eq!(combination_mod_prime(5, 3, LARGE_PRIME), 10);
+    assert_eq!(combination_mod_prime(5, 4, LARGE_PRIME), 5);
+    assert_eq!(combination_mod_prime(5, 5, LARGE_PRIME), 1);
+    assert_eq!(combination_mod_prime(4, 2, LARGE_PRIME), 6);
+    assert_eq!(combination_mod_prime(7, 4, LARGE_PRIME), 35);
+    assert_eq!(combination_mod_prime(10, 10, LARGE_PRIME), 1);
+    assert_eq!(combination_mod_prime(20, 10, LARGE_PRIME), 184756);
+    assert_eq!(combination_mod_prime(777, 77, LARGE_PRIME), 494594013);
 }
