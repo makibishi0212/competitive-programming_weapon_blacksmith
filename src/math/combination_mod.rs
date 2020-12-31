@@ -22,6 +22,7 @@ fn prime_inverse_mod(element: usize, prime_modulo: usize) -> usize {
     power_mod(element, prime_modulo - 2, prime_modulo) % prime_modulo
 }
 
+#[snippet("@permutation_mod")]
 #[snippet("@prime_combination_mod")]
 fn permutation_mod(m: usize, n: usize, prime_modulo: usize) -> usize {
     // m P n = m! / (m - n)!
