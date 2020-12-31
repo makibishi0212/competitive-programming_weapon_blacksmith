@@ -1,9 +1,10 @@
+use crate::math::gcd::extgcd;
 use cargo_snippet::snippet;
 
 #[snippet("@power_mod")]
 #[snippet("@prime_inverse_mod")]
 #[snippet("@prime_combination_mod")]
-fn power_mod(base: usize, exp: usize, modulo: usize) -> usize {
+pub fn power_mod(base: usize, exp: usize, modulo: usize) -> usize {
     if exp == 0 {
         return 1;
     } else if exp & 1 == 0 {
@@ -16,15 +17,25 @@ fn power_mod(base: usize, exp: usize, modulo: usize) -> usize {
 #[snippet("@prime_inverse_mod")]
 #[snippet("@prime_combination_mod")]
 // 逆元
-fn prime_inverse_mod(element: usize, prime_modulo: usize) -> usize {
+pub fn prime_inverse_mod(element: usize, prime_modulo: usize) -> usize {
     // フェルマーの小定理からpが素数なら a^(p-1) = 1
     // よってa*a^(p-2) = 1 より a^(p-2)がaの逆元
     power_mod(element, prime_modulo - 2, prime_modulo) % prime_modulo
 }
 
+#[snippet("@inverse_mod")]
+// must gcd(element, modulo) = 1
+pub fn inverse_mod(element: i64, modulo: i64) -> i64 {
+    assert!(1 <= modulo);
+    let (x, _) = extgcd(element, modulo);
+    let ans = (x + modulo) % modulo;
+    assert!(ans * element % modulo == 1); // ansが逆数になっていないならエラー
+    ans
+}
+
 #[snippet("@permutation_mod")]
 #[snippet("@prime_combination_mod")]
-fn permutation_mod(m: usize, n: usize, prime_modulo: usize) -> usize {
+pub fn permutation_mod(m: usize, n: usize, prime_modulo: usize) -> usize {
     // m P n = m! / (m - n)!
     //       = m*(m-1)*(m-2)*...*(m-n+1)
     let mut numerator = 1;
@@ -37,7 +48,7 @@ fn permutation_mod(m: usize, n: usize, prime_modulo: usize) -> usize {
 }
 
 #[snippet("@prime_combination_mod")]
-fn prime_combination_mod(m: usize, n: usize, prime_modulo: usize) -> usize {
+pub fn prime_combination_mod(m: usize, n: usize, prime_modulo: usize) -> usize {
     // m C n = m! / ( n! * (m - n)! )
     //       = m*(m-1)*(m-2)*...*(m-n+1)/n!
     //       = m*(m-1)*(m-2)*...*(m-n+1) * (n!)^-1
@@ -71,7 +82,7 @@ fn power_mod_test() {
 }
 
 #[test]
-fn inverse_mod_test() {
+fn prime_inverse_mod_test() {
     assert_eq!(prime_inverse_mod(700, 11), 8);
     assert_eq!(prime_inverse_mod(3, 2), 1);
     assert_eq!(prime_inverse_mod(1, 2), 1);
@@ -91,7 +102,43 @@ fn inverse_mod_test() {
 }
 
 #[test]
-fn permutation_mod_test() {
+fn inverse_mod_test() {
+    // prime_inverse_modのテストは当然通る
+    assert_eq!(inverse_mod(700, 11), 8);
+    assert_eq!(inverse_mod(3, 2), 1);
+    assert_eq!(inverse_mod(1, 2), 1);
+    assert_eq!(inverse_mod(1, 11), 1);
+    assert_eq!(inverse_mod(1, 53), 1);
+    assert_eq!(inverse_mod(1, LARGE_PRIME as i64), 1);
+    assert_eq!(
+        (99 * inverse_mod(99, LARGE_PRIME as i64) as i64) % LARGE_PRIME as i64,
+        1
+    );
+    assert_eq!(
+        (558 * inverse_mod(558, LARGE_PRIME as i64)) % LARGE_PRIME as i64,
+        1
+    );
+    assert_eq!(
+        (77777 * inverse_mod(77777, LARGE_PRIME as i64)) % LARGE_PRIME as i64,
+        1
+    );
+    assert_eq!(
+        (4321321 * inverse_mod(4321321, LARGE_PRIME as i64)) % LARGE_PRIME as i64,
+        1
+    );
+
+    assert_eq!(inverse_mod(2, 11), 6); // 2*6 % 11 = 1
+    assert_eq!(inverse_mod(6, 11), 2); // 2*6 % 11 = 1
+    assert_eq!(inverse_mod(2, 9), 5); // 2*5 % 9 = 1
+    assert_eq!(inverse_mod(8, 9), 8); // 8*8 % 9 = 1
+    assert_eq!(inverse_mod(8, 9), 8); // 8*8 % 9 = 1
+
+    assert_eq!(inverse_mod(12, 125), 73); // 12*73 % 125 = 1
+    assert_eq!(inverse_mod(12521, 5736), 257); // 12*73 % 125 = 1
+}
+
+#[test]
+fn prime_combination_mod_test() {
     assert_eq!(prime_combination_mod(5, 0, LARGE_PRIME), 1);
     assert_eq!(prime_combination_mod(5, 1, LARGE_PRIME), 5);
     assert_eq!(prime_combination_mod(5, 2, LARGE_PRIME), 10);

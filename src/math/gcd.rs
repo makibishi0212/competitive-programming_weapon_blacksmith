@@ -3,7 +3,7 @@ use cargo_snippet::snippet;
 // 最大公約数
 #[snippet("@gcd")]
 #[snippet("@lcm")]
-fn gcd(a: usize, b: usize) -> usize {
+pub fn gcd(a: usize, b: usize) -> usize {
     let mut aa: usize = if a > b { a } else { b };
     let mut bb: usize = if a > b { b } else { a };
     while bb != 0 {
@@ -16,13 +16,14 @@ fn gcd(a: usize, b: usize) -> usize {
 
 // 最小公倍数
 #[snippet("@lcm")]
-fn lcm(a: usize, b: usize) -> usize {
+pub fn lcm(a: usize, b: usize) -> usize {
     a / gcd(a, b) * b
 }
 
 // 拡張ユークリッド ax+by=gcd(a,b)を解き、x,yを返す
 #[snippet("@extgcd")]
-fn extgcd(a: i64, b: i64) -> (i64, i64) {
+#[snippet("@inverse_mod")]
+pub fn extgcd(a: i64, b: i64) -> (i64, i64) {
     if b == 0 {
         return (1, 0);
     }
