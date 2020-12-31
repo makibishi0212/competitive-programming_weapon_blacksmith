@@ -37,13 +37,13 @@ pub fn inverse_mod(element: usize, modulo: usize) -> usize {
 
 #[snippet("@permutation_mod")]
 #[snippet("@prime_combination_mod")]
-pub fn permutation_mod(m: usize, n: usize, prime_modulo: usize) -> usize {
+pub fn permutation_mod(m: usize, n: usize, modulo: usize) -> usize {
     // m P n = m! / (m - n)!
     //       = m*(m-1)*(m-2)*...*(m-n+1)
     let mut numerator = 1;
     for i in 0..n {
         numerator *= m - i;
-        numerator %= prime_modulo;
+        numerator %= modulo;
     }
 
     numerator

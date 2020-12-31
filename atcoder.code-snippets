@@ -551,40 +551,6 @@
       "}"
     ]
   },
-  "@combination_mod": {
-    "prefix": "@combination_mod",
-    "body": [
-      "fn power_mod(base: usize, exp: usize, modulo: usize) -> usize {",
-      "    if exp == 0 {",
-      "        return 1;",
-      "    } else if exp & 1 == 0 {",
-      "        return (power_mod(base, exp / 2, modulo) % modulo).pow(2) % modulo;",
-      "    } else {",
-      "        return power_mod(base, exp - 1, modulo) % modulo * base % modulo;",
-      "    }",
-      "}",
-      "fn inverse_mod(element: usize, prime_modulo: usize) -> usize {",
-      "    power_mod(element, prime_modulo - 2, prime_modulo) % prime_modulo",
-      "}",
-      "fn permutation_mod(m: usize, n: usize, prime_modulo: usize) -> usize {",
-      "    let mut numerator = 1;",
-      "    for i in 0..n {",
-      "        numerator *= m - i;",
-      "        numerator %= prime_modulo;",
-      "    }",
-      "    numerator",
-      "}",
-      "fn combination_mod(m: usize, n: usize, prime_modulo: usize) -> usize {",
-      "    let permutation = permutation_mod(m, n, prime_modulo);",
-      "    let mut element = 1;",
-      "    for j in 1..(n + 1) {",
-      "        element *= j;",
-      "        element %= prime_modulo;",
-      "    }",
-      "    permutation * inverse_mod(element, prime_modulo) % prime_modulo",
-      "}"
-    ]
-  },
   "@enumerate_divisor": {
     "prefix": "@enumerate_divisor",
     "body": [
@@ -636,7 +602,7 @@
   "@extgcd": {
     "prefix": "@extgcd",
     "body": [
-      "fn extgcd(a: i64, b: i64) -> (i64, i64) {",
+      "pub fn extgcd(a: i64, b: i64) -> (i64, i64) {",
       "    if b == 0 {",
       "        return (1, 0);",
       "    }",
@@ -674,7 +640,7 @@
   "@gcd": {
     "prefix": "@gcd",
     "body": [
-      "fn gcd(a: usize, b: usize) -> usize {",
+      "pub fn gcd(a: usize, b: usize) -> usize {",
       "    let mut aa: usize = if a > b { a } else { b };",
       "    let mut bb: usize = if a > b { b } else { a };",
       "    while bb != 0 {",
@@ -689,24 +655,28 @@
   "@inverse_mod": {
     "prefix": "@inverse_mod",
     "body": [
-      "fn power_mod(base: usize, exp: usize, modulo: usize) -> usize {",
-      "    if exp == 0 {",
-      "        return 1;",
-      "    } else if exp & 1 == 0 {",
-      "        return (power_mod(base, exp / 2, modulo) % modulo).pow(2) % modulo;",
-      "    } else {",
-      "        return power_mod(base, exp - 1, modulo) % modulo * base % modulo;",
-      "    }",
+      "pub fn inverse_mod(element: usize, modulo: usize) -> usize {",
+      "    assert!(1 <= modulo);",
+      "    let i_element = element as i64;",
+      "    let i_modulo = modulo as i64;",
+      "    let (x, _) = extgcd(i_element, i_modulo);",
+      "    let ans = ((x + i_modulo) % i_modulo) as usize;",
+      "    assert!(ans * element % modulo == 1);",
+      "    ans",
       "}",
-      "fn inverse_mod(element: usize, prime_modulo: usize) -> usize {",
-      "    power_mod(element, prime_modulo - 2, prime_modulo) % prime_modulo",
+      "pub fn extgcd(a: i64, b: i64) -> (i64, i64) {",
+      "    if b == 0 {",
+      "        return (1, 0);",
+      "    }",
+      "    let d = extgcd(b, a % b);",
+      "    return (d.1, d.0 - a / b * d.1);",
       "}"
     ]
   },
   "@lcm": {
     "prefix": "@lcm",
     "body": [
-      "fn gcd(a: usize, b: usize) -> usize {",
+      "pub fn gcd(a: usize, b: usize) -> usize {",
       "    let mut aa: usize = if a > b { a } else { b };",
       "    let mut bb: usize = if a > b { b } else { a };",
       "    while bb != 0 {",
@@ -716,7 +686,7 @@
       "    }",
       "    return aa;",
       "}",
-      "fn lcm(a: usize, b: usize) -> usize {",
+      "pub fn lcm(a: usize, b: usize) -> usize {",
       "    a / gcd(a, b) * b",
       "}"
     ]
@@ -755,10 +725,23 @@
       "}"
     ]
   },
+  "@permutation_mod": {
+    "prefix": "@permutation_mod",
+    "body": [
+      "pub fn permutation_mod(m: usize, n: usize, modulo: usize) -> usize {",
+      "    let mut numerator = 1;",
+      "    for i in 0..n {",
+      "        numerator *= m - i;",
+      "        numerator %= modulo;",
+      "    }",
+      "    numerator",
+      "}"
+    ]
+  },
   "@power_mod": {
     "prefix": "@power_mod",
     "body": [
-      "fn power_mod(base: usize, exp: usize, modulo: usize) -> usize {",
+      "pub fn power_mod(base: usize, exp: usize, modulo: usize) -> usize {",
       "    if exp == 0 {",
       "        return 1;",
       "    } else if exp & 1 == 0 {",
@@ -800,6 +783,40 @@
       "    array.swap(asc_begin_index, swap_to);",
       "    array[asc_begin_index + 1..n].reverse();",
       "    Some(asc_begin_index)",
+      "}"
+    ]
+  },
+  "@prime_combination_mod": {
+    "prefix": "@prime_combination_mod",
+    "body": [
+      "pub fn power_mod(base: usize, exp: usize, modulo: usize) -> usize {",
+      "    if exp == 0 {",
+      "        return 1;",
+      "    } else if exp & 1 == 0 {",
+      "        return (power_mod(base, exp / 2, modulo) % modulo).pow(2) % modulo;",
+      "    } else {",
+      "        return power_mod(base, exp - 1, modulo) % modulo * base % modulo;",
+      "    }",
+      "}",
+      "pub fn prime_inverse_mod(element: usize, prime_modulo: usize) -> usize {",
+      "    power_mod(element, prime_modulo - 2, prime_modulo) % prime_modulo",
+      "}",
+      "pub fn permutation_mod(m: usize, n: usize, modulo: usize) -> usize {",
+      "    let mut numerator = 1;",
+      "    for i in 0..n {",
+      "        numerator *= m - i;",
+      "        numerator %= modulo;",
+      "    }",
+      "    numerator",
+      "}",
+      "pub fn prime_combination_mod(m: usize, n: usize, prime_modulo: usize) -> usize {",
+      "    let permutation = permutation_mod(m, n, prime_modulo);",
+      "    let mut element = 1;",
+      "    for j in 1..(n + 1) {",
+      "        element *= j;",
+      "        element %= prime_modulo;",
+      "    }",
+      "    permutation * prime_inverse_mod(element, prime_modulo) % prime_modulo",
       "}"
     ]
   },
@@ -846,6 +863,23 @@
       "        }",
       "    }",
       "    divisors",
+      "}"
+    ]
+  },
+  "@prime_inverse_mod": {
+    "prefix": "@prime_inverse_mod",
+    "body": [
+      "pub fn power_mod(base: usize, exp: usize, modulo: usize) -> usize {",
+      "    if exp == 0 {",
+      "        return 1;",
+      "    } else if exp & 1 == 0 {",
+      "        return (power_mod(base, exp / 2, modulo) % modulo).pow(2) % modulo;",
+      "    } else {",
+      "        return power_mod(base, exp - 1, modulo) % modulo * base % modulo;",
+      "    }",
+      "}",
+      "pub fn prime_inverse_mod(element: usize, prime_modulo: usize) -> usize {",
+      "    power_mod(element, prime_modulo - 2, prime_modulo) % prime_modulo",
       "}"
     ]
   },
