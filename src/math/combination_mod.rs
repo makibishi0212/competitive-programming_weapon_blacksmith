@@ -25,10 +25,12 @@ pub fn prime_inverse_mod(element: usize, prime_modulo: usize) -> usize {
 
 #[snippet("@inverse_mod")]
 // must gcd(element, modulo) = 1
-pub fn inverse_mod(element: i64, modulo: i64) -> i64 {
+pub fn inverse_mod(element: usize, modulo: usize) -> usize {
     assert!(1 <= modulo);
-    let (x, _) = extgcd(element, modulo);
-    let ans = (x + modulo) % modulo;
+    let i_element = element as i64;
+    let i_modulo = modulo as i64;
+    let (x, _) = extgcd(i_element, i_modulo);
+    let ans = ((x + i_modulo) % i_modulo) as usize;
     assert!(ans * element % modulo == 1); // ansが逆数になっていないならエラー
     ans
 }
@@ -109,21 +111,15 @@ fn inverse_mod_test() {
     assert_eq!(inverse_mod(1, 2), 1);
     assert_eq!(inverse_mod(1, 11), 1);
     assert_eq!(inverse_mod(1, 53), 1);
-    assert_eq!(inverse_mod(1, LARGE_PRIME as i64), 1);
+    assert_eq!(inverse_mod(1, LARGE_PRIME), 1);
     assert_eq!(
-        (99 * inverse_mod(99, LARGE_PRIME as i64) as i64) % LARGE_PRIME as i64,
+        (99 * inverse_mod(99, LARGE_PRIME) as i64) % LARGE_PRIME as i64,
         1
     );
+    assert_eq!((558 * inverse_mod(558, LARGE_PRIME)) % LARGE_PRIME, 1);
+    assert_eq!((77777 * inverse_mod(77777, LARGE_PRIME)) % LARGE_PRIME, 1);
     assert_eq!(
-        (558 * inverse_mod(558, LARGE_PRIME as i64)) % LARGE_PRIME as i64,
-        1
-    );
-    assert_eq!(
-        (77777 * inverse_mod(77777, LARGE_PRIME as i64)) % LARGE_PRIME as i64,
-        1
-    );
-    assert_eq!(
-        (4321321 * inverse_mod(4321321, LARGE_PRIME as i64)) % LARGE_PRIME as i64,
+        (4321321 * inverse_mod(4321321, LARGE_PRIME)) % LARGE_PRIME,
         1
     );
 
@@ -134,7 +130,7 @@ fn inverse_mod_test() {
     assert_eq!(inverse_mod(8, 9), 8); // 8*8 % 9 = 1
 
     assert_eq!(inverse_mod(12, 125), 73); // 12*73 % 125 = 1
-    assert_eq!(inverse_mod(12521, 5736), 257); // 12*73 % 125 = 1
+    assert_eq!(inverse_mod(12521, 5736), 257); // 12521*257 % 5736 = 1
 }
 
 #[test]
