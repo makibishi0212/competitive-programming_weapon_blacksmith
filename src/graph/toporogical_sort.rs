@@ -51,11 +51,12 @@ fn topological_sort_undirected_graph(n: usize, zeroIndexedEdges: &[(usize, usize
     for e in zeroIndexedEdges {
         to[e.0].push(e.1);
         to[e.1].push(e.0);
+        deg[e.0] += 1;
         deg[e.1] += 1;
     }
 
     for i in 0..n {
-        if deg[i] == 0 {
+        if deg[i] == 1 {
             isolated.push_front(i);
         }
     }
