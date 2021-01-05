@@ -105,11 +105,15 @@ mod test {
     #[test]
     fn topological_sort_undirected_graph_test() {
         let edges = [(2, 3), (0, 1), (1, 2)];
-        let vertex = topological_sort_directed_graph(4, &edges);
-        assert_eq!(vertex, vec![0, 1, 2, 3]);
+        let vertex = topological_sort_undirected_graph(4, &edges);
+        assert_eq!(vertex, vec![0, 3, 1, 2]);
 
         let edges = [(0, 2), (1, 2), (3, 5), (4, 5), (2, 6), (3, 6)];
-        let vertex = topological_sort_directed_graph(7, &edges);
-        assert_eq!(vertex, vec![0, 1, 3, 4, 2, 5, 6]);
+        let vertex = topological_sort_undirected_graph(7, &edges);
+        assert_eq!(vertex, vec![0, 1, 4, 2, 5, 6, 3]);
+
+        let edges = [(0, 1), (1, 2), (1, 3), (3, 4)];
+        let vertex = topological_sort_undirected_graph(5, &edges);
+        assert_eq!(vertex, vec![0, 2, 4, 1, 3]);
     }
 }
