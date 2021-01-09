@@ -5,7 +5,8 @@
 ```
 git clone https://github.com/makibishi0212/competitive-programming_weapon_blacksmith.git
 cd competitive-programming_weapon_blacksmith
-cargo install
+rustup component add rustfmt
+cargo install cargo-snippet --features="binaries"
 
 cargo snippet -t vscode > atcoder.code-snippets
 ```
