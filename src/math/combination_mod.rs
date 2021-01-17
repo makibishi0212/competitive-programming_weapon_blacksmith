@@ -49,6 +49,19 @@ pub fn permutation_mod(m: usize, n: usize, modulo: usize) -> usize {
     numerator
 }
 
+#[snippet("@factorial_mod")]
+#[snippet("@prime_combination_mod")]
+pub fn factorial_mod(n: usize, modulo: usize) -> usize {
+    // n!
+    let mut element = 1;
+    for j in 1..(n + 1) {
+        element *= j;
+        element %= modulo;
+    }
+
+    element
+}
+
 #[snippet("@prime_combination_mod")]
 pub fn prime_combination_mod(m: usize, n: usize, prime_modulo: usize) -> usize {
     // m C n = m! / ( n! * (m - n)! )
@@ -131,6 +144,13 @@ fn inverse_mod_test() {
 
     assert_eq!(inverse_mod(12, 125), 73); // 12*73 % 125 = 1
     assert_eq!(inverse_mod(12521, 5736), 257); // 12521*257 % 5736 = 1
+}
+
+#[test]
+fn factorial_mod_test() {
+    assert_eq!(factorial_mod(5, LARGE_PRIME), 120);
+    assert_eq!(factorial_mod(10, LARGE_PRIME), 3628800);
+    assert_eq!(factorial_mod(40, LARGE_PRIME), 799434881);
 }
 
 #[test]
