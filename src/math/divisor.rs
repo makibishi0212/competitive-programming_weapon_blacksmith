@@ -4,7 +4,7 @@ use cargo_snippet::snippet;
 // エラストテネスの篩
 #[snippet("@eratosthenes")]
 #[snippet("@prime_factorize")]
-fn eratosthenes(n: usize) -> Vec<usize> {
+pub fn eratosthenes(n: usize) -> Vec<usize> {
     let mut sieve = Vec::with_capacity(n - 1);
     for i in 2..=n {
         sieve.push(i);
@@ -32,8 +32,8 @@ fn eratosthenes(n: usize) -> Vec<usize> {
 
 // 素因数分解
 #[snippet("@prime_factorize")]
-fn prime_factorize(mut num: usize) -> std::collections::HashMap<usize, usize> {
-    let mut primes = eratosthenes(num);
+pub fn prime_factorize(mut num: usize) -> std::collections::HashMap<usize, usize> {
+    let primes = eratosthenes(num);
     let mut divisors = std::collections::HashMap::new();
 
     let mut now = primes.len();
@@ -57,7 +57,7 @@ fn prime_factorize(mut num: usize) -> std::collections::HashMap<usize, usize> {
 
 // 約数列挙
 #[snippet("@enumerate_divisor")]
-fn enumerate_divisor(n: usize) -> Vec<usize> {
+pub fn enumerate_divisor(n: usize) -> Vec<usize> {
     let mut i = 1;
 
     let mut divisors = vec![];

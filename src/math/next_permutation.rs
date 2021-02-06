@@ -3,7 +3,7 @@ use cargo_snippet::snippet;
 // 与えられた配列を辞書順で次のものに並び替える
 // arrayの要素は相異なる必要がある
 #[snippet("@next_permutation")]
-fn next_permutation<T: std::cmp::PartialOrd>(array: &mut [T]) -> Option<usize> {
+pub fn next_permutation<T: std::cmp::PartialOrd>(array: &mut [T]) -> Option<usize> {
     let n = array.len();
 
     if n < 2 {
@@ -43,7 +43,7 @@ fn next_permutation<T: std::cmp::PartialOrd>(array: &mut [T]) -> Option<usize> {
 // 与えられた配列を辞書順で前のものに並び替える
 // arrayの要素は相異なる必要がある
 #[snippet("@prev_permutation")]
-fn prev_permutation<T: std::cmp::PartialOrd>(array: &mut [T]) -> Option<usize> {
+pub fn prev_permutation<T: std::cmp::PartialOrd>(array: &mut [T]) -> Option<usize> {
     let n = array.len();
 
     if n < 2 {

@@ -1,7 +1,7 @@
 use cargo_snippet::snippet;
 
 #[snippet("@ceil")]
-fn ceil(top: usize, bottom: usize) -> usize {
+pub fn ceil(top: usize, bottom: usize) -> usize {
     (top + bottom - 1) / bottom
 }
 

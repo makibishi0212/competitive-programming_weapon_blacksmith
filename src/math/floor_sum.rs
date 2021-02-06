@@ -2,7 +2,7 @@ use cargo_snippet::snippet;
 
 // floor_sum Σ_{0}^{n-1} floor((a*i+b)/m) を計算する。
 #[snippet("@floor_sum")]
-fn floor_sum(n: i64, m: i64, mut a: i64, mut b: i64) -> i64 {
+pub fn floor_sum(n: i64, m: i64, mut a: i64, mut b: i64) -> i64 {
     let mut ans = 0;
 
     if a >= m {
