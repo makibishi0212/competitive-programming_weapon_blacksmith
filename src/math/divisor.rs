@@ -9,8 +9,10 @@ pub fn eratosthenes(n: usize) -> Vec<usize> {
     for i in 2..=n {
         sieve.push(i);
     }
-    for i in 2..=(n as f64).sqrt() as usize {
+    let mut i = 2;
+    while i * i <= n {
         if sieve[i - 2] < i {
+            i += 1;
             continue;
         }
         for j in (i * i..=n).step_by(i) {
@@ -18,6 +20,7 @@ pub fn eratosthenes(n: usize) -> Vec<usize> {
                 sieve[j - 2] = i;
             }
         }
+        i += 1;
     }
 
     let mut result = Vec::with_capacity(n - 1);
