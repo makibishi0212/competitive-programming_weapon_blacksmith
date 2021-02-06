@@ -1,5 +1,5 @@
 use cargo_snippet::snippet;
-use std::usize;
+use std::{cmp, usize};
 
 #[snippet("@IntSqrtPower")]
 pub trait IntSqrtPower {
@@ -13,7 +13,7 @@ impl IntSqrtPower for usize {
             return *self;
         }
 
-        let mut max = 1 << 32;
+        let mut max = cmp::min(1 << 32, *self);
         let mut min = 0;
 
         while max - min > 1 {
@@ -35,6 +35,9 @@ mod test {
 
     #[test]
     fn intSqrtPowerTest() {
+        assert_eq!(4.sqrt(), 2);
+        assert_eq!(9.sqrt(), 3);
+        assert_eq!(10.sqrt(), 3);
         assert_eq!(500.sqrt(), 22);
         assert_eq!(10000.sqrt(), 100);
         assert_eq!(998001.sqrt(), 999);
