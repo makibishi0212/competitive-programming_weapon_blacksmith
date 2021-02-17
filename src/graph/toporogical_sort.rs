@@ -1,5 +1,4 @@
 use cargo_snippet::snippet;
-use std::collections::VecDeque;
 
 #[snippet("@topological_sort_directed")]
 pub fn topological_sort_directed_graph(
@@ -7,7 +6,7 @@ pub fn topological_sort_directed_graph(
     zeroIndexedEdges: &[(usize, usize)],
 ) -> Vec<usize> {
     let mut result = vec![];
-    let mut isolated = VecDeque::new();
+    let mut isolated = std::collections::VecDeque::new();
 
     // to[x] = [a,b] x -> a, x -> b が存在
     let mut to = vec![vec![]; n];
@@ -46,7 +45,7 @@ pub fn topological_sort_undirected_graph(
     zeroIndexedEdges: &[(usize, usize)],
 ) -> Vec<usize> {
     let mut result = vec![];
-    let mut isolated = VecDeque::new();
+    let mut isolated = std::collections::VecDeque::new();
 
     // to[x] = [a,b] x -> a, x -> b が存在
     let mut to = vec![vec![]; n];

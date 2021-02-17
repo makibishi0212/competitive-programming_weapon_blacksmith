@@ -1,5 +1,6 @@
+use std::usize;
+
 use cargo_snippet::snippet;
-use proptest::bits::usize;
 
 // 多重辺を含まないグラフ。頂点は0-indexed。自己ループ辺はok
 #[snippet("@SimpleGraph")]
@@ -22,7 +23,7 @@ impl<T: std::ops::Add + std::ops::Sub<Output = T> + std::marker::Copy + std::cmp
     }
 
     // prior_min_cost: すでに与えられたコストより小さいコストが保存されている時、そちらを優先するかどうか
-    pub fn add_edge(&mut self, from: usize, to: usize, cost: T, prior_min_cost: bool) {
+    pub fn add_or_update_edge(&mut self, from: usize, to: usize, cost: T, prior_min_cost: bool) {
         let new_cost = {
             if !prior_min_cost {
                 cost
@@ -40,7 +41,7 @@ impl<T: std::ops::Add + std::ops::Sub<Output = T> + std::marker::Copy + std::cmp
         };
         self.edges[from].insert(to, new_cost);
 
-        // 無向グラフ
+        // 無向グラフなら、反対にも辺を張る
         if !self.directed {
             self.edges[to].insert(from, new_cost);
         }
@@ -52,6 +53,42 @@ impl<T: std::ops::Add + std::ops::Sub<Output = T> + std::marker::Copy + std::cmp
         } else {
             None
         }
+    }
+
+    pub fn topological_sort(&self) -> Vec<usize> {
+        let mut result = vec![];
+        let mut isolated = std::collections::VecDeque::new();
+
+        // deg[x] = a -> x, b -> xのような辺の数
+        let mut degs = vec![0; self.size];
+
+        let isolate_deg = if self.directed { 0 } else { 1 };
+
+        self.edges.iter().enumerate().for_each(|(_, v_edges)| {
+            v_edges.keys().for_each(|&to| {
+                degs[to] += 1;
+            });
+        });
+
+        degs.iter().enumerate().for_each(|(index, &deg)| {
+            if deg == isolate_deg {
+                isolated.push_front(index);
+            }
+        });
+
+        while isolated.len() != 0 {
+            let next = isolated.pop_back().unwrap();
+            result.push(next);
+            for &i in self.edges[next].keys() {
+                println!("{:?}", i);
+                degs[i] -= 1;
+                if degs[i] == isolate_deg {
+                    isolated.push_front(i);
+                }
+            }
+        }
+
+        result
     }
 }
 
@@ -80,9 +117,6 @@ impl SimpleGraph<usize> {
 
         from_to_n
     }
-
-    // 2点間
-    pub fn min_dist(&self, from: usize, to: usize) {}
 }
 
 mod test {
@@ -93,21 +127,21 @@ mod test {
     #[test]
     fn edge_update_test() {
         let mut graph = SimpleGraph::<usize>::new(2, true);
-        graph.add_edge(0, 1, 100, true);
+        graph.add_or_update_edge(0, 1, 100, true);
         assert_eq!(graph.get_edge(0, 1), Some(100));
-        graph.add_edge(0, 1, 200, true);
+        graph.add_or_update_edge(0, 1, 200, true);
         assert_eq!(graph.get_edge(0, 1), Some(100));
-        graph.add_edge(0, 1, 200, false);
+        graph.add_or_update_edge(0, 1, 200, false);
         assert_eq!(graph.get_edge(0, 1), Some(200));
     }
 
     #[test]
     fn min_dists_test() {
         let mut graph = SimpleGraph::<usize>::new(4, true);
-        graph.add_edge(0, 1, 100, true);
-        graph.add_edge(1, 2, 100, true);
-        graph.add_edge(2, 3, 150, true);
-        graph.add_edge(3, 0, 3, true);
+        graph.add_or_update_edge(0, 1, 100, true);
+        graph.add_or_update_edge(1, 2, 100, true);
+        graph.add_or_update_edge(2, 3, 150, true);
+        graph.add_or_update_edge(3, 0, 3, true);
 
         assert_eq!(graph.min_dists(0), vec![353, 100, 200, 350]);
         assert_eq!(graph.min_dists(1), vec![253, 353, 100, 250]);
@@ -118,14 +152,14 @@ mod test {
     #[test]
     fn min_dists_self_loop_case_test() {
         let mut graph = SimpleGraph::<usize>::new(4, true);
-        graph.add_edge(0, 1, 100, true);
-        graph.add_edge(1, 2, 100, true);
-        graph.add_edge(2, 3, 150, true);
-        graph.add_edge(3, 0, 3, true);
+        graph.add_or_update_edge(0, 1, 100, true);
+        graph.add_or_update_edge(1, 2, 100, true);
+        graph.add_or_update_edge(2, 3, 150, true);
+        graph.add_or_update_edge(3, 0, 3, true);
 
         // 上のテストに自己ループ辺を追加
-        graph.add_edge(0, 0, 0, true);
-        graph.add_edge(3, 3, 11, true);
+        graph.add_or_update_edge(0, 0, 0, true);
+        graph.add_or_update_edge(3, 3, 11, true);
 
         assert_eq!(graph.min_dists(0), vec![0, 100, 200, 350]);
         assert_eq!(graph.min_dists(1), vec![253, 353, 100, 250]);
@@ -136,11 +170,11 @@ mod test {
     #[test]
     fn min_dists_test2() {
         let mut graph = SimpleGraph::<usize>::new(5, true);
-        graph.add_edge(0, 1, 90, true);
-        graph.add_edge(1, 2, 180, true);
-        graph.add_edge(0, 2, 150, true);
-        graph.add_edge(0, 3, 40, true);
-        graph.add_edge(3, 4, 9000, true);
+        graph.add_or_update_edge(0, 1, 90, true);
+        graph.add_or_update_edge(1, 2, 180, true);
+        graph.add_or_update_edge(0, 2, 150, true);
+        graph.add_or_update_edge(0, 3, 40, true);
+        graph.add_or_update_edge(3, 4, 9000, true);
 
         assert_eq!(
             graph.min_dists(0),
@@ -192,16 +226,35 @@ mod test {
     fn min_dists_undirected_test() {
         // 上のテストを無向グラフにしたもの
         let mut graph = SimpleGraph::<usize>::new(5, false);
-        graph.add_edge(0, 1, 90, true);
-        graph.add_edge(1, 2, 180, true);
-        graph.add_edge(0, 2, 150, true);
-        graph.add_edge(0, 3, 40, true);
-        graph.add_edge(3, 4, 9000, true);
+        graph.add_or_update_edge(0, 1, 90, true);
+        graph.add_or_update_edge(1, 2, 180, true);
+        graph.add_or_update_edge(0, 2, 150, true);
+        graph.add_or_update_edge(0, 3, 40, true);
+        graph.add_or_update_edge(3, 4, 9000, true);
 
         assert_eq!(graph.min_dists(0), vec![80, 90, 150, 40, 9040]);
         assert_eq!(graph.min_dists(1), vec![90, 180, 180, 130, 9130]);
         assert_eq!(graph.min_dists(2), vec![150, 180, 300, 190, 9190]);
         assert_eq!(graph.min_dists(3), vec![40, 130, 190, 80, 9000]);
         assert_eq!(graph.min_dists(4), vec![9040, 9130, 9190, 9000, 18000]);
+    }
+
+    #[test]
+    fn topological_sort_directed_test() {
+        let mut graph = SimpleGraph::<usize>::new(5, true);
+        graph.add_or_update_edge(0, 1, 1, false);
+        graph.add_or_update_edge(1, 2, 1, false);
+        graph.add_or_update_edge(3, 2, 1, false);
+        graph.add_or_update_edge(2, 4, 1, false);
+        assert_eq!(graph.topological_sort(), vec![0, 3, 1, 2, 4]);
+    }
+
+    #[test]
+    fn topological_sort_undirected_test() {
+        let mut graph = SimpleGraph::<usize>::new(4, false);
+        graph.add_or_update_edge(2, 3, 1, false);
+        graph.add_or_update_edge(0, 1, 1, false);
+        graph.add_or_update_edge(1, 2, 1, false);
+        assert_eq!(graph.topological_sort(), vec![0, 3, 1, 2]);
     }
 }
