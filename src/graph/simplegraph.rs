@@ -119,6 +119,52 @@ impl SimpleGraph<usize> {
     }
 }
 
+// 負辺を含むグラフのためのメソッド
+impl SimpleGraph<i64> {
+    // Bellman-Ford法で1対nの最小距離を求める。負閉路を検出した場合はNone
+    // このメソッドでは自己ループ辺を無視する。
+    pub fn min_dists(&self, from: usize) -> Option<Vec<i64>> {
+        let mut from_to_n = vec![std::i64::MAX; self.size];
+        from_to_n[from] = 0;
+        for _ in 0..self.size {
+            self.edges.iter().enumerate().for_each(|(from_v, v_edges)| {
+                v_edges.iter().for_each(|(&to_v, &cost)| {
+                    if from_to_n[from_v] != std::i64::MAX {
+                        from_to_n[to_v] = std::cmp::min(from_to_n[to_v], from_to_n[from_v] + cost);
+                    }
+                });
+            });
+        }
+
+        let dist_total_before: i64 = from_to_n
+            .iter()
+            .filter(|&&dist| dist != std::i64::MAX)
+            .map(|dist| *dist)
+            .sum();
+
+        // もう一周行う
+        self.edges.iter().enumerate().for_each(|(from_v, v_edges)| {
+            v_edges.iter().for_each(|(&to_v, &cost)| {
+                if from_to_n[from_v] != std::i64::MAX {
+                    from_to_n[to_v] = std::cmp::min(from_to_n[to_v], from_to_n[from_v] + cost);
+                }
+            });
+        });
+
+        let dist_total_after: i64 = from_to_n
+            .iter()
+            .filter(|&&dist| dist != std::i64::MAX)
+            .map(|dist| *dist)
+            .sum();
+
+        if dist_total_before != dist_total_after {
+            None
+        } else {
+            Some(from_to_n)
+        }
+    }
+}
+
 mod test {
     use crate::graph;
 
@@ -220,6 +266,41 @@ mod test {
                 18446744073709551615
             ]
         );
+    }
+
+    #[test]
+    fn min_dists_i64_test() {
+        let mut graph = SimpleGraph::<i64>::new(5, true);
+        graph.add_or_update_edge(0, 1, 90, true);
+        graph.add_or_update_edge(1, 2, 180, true);
+        graph.add_or_update_edge(0, 2, 150, true);
+        graph.add_or_update_edge(0, 3, 40, true);
+        graph.add_or_update_edge(3, 4, 9000, true);
+
+        assert_eq!(graph.min_dists(0), Some(vec![0, 90, 150, 40, 9040]));
+    }
+
+    #[test]
+    fn min_dists_i64_test2() {
+        let mut graph = SimpleGraph::<i64>::new(5, true);
+        graph.add_or_update_edge(0, 1, -50, true);
+        graph.add_or_update_edge(1, 0, 70, true);
+        graph.add_or_update_edge(1, 2, 180, true);
+        graph.add_or_update_edge(0, 2, 150, true);
+        graph.add_or_update_edge(0, 3, 40, true);
+        graph.add_or_update_edge(3, 4, 9000, true);
+
+        assert_eq!(graph.min_dists(0), Some(vec![0, -50, 130, 40, 9040]));
+    }
+
+    #[test]
+    fn min_dists_i64_negative_cycle_test() {
+        let mut graph = SimpleGraph::<i64>::new(3, true);
+        graph.add_or_update_edge(0, 1, -70, true);
+        graph.add_or_update_edge(1, 0, 69, true);
+        graph.add_or_update_edge(0, 2, 200, true);
+
+        assert_eq!(graph.min_dists(0), None);
     }
 
     #[test]
