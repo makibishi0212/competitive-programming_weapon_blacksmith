@@ -11,9 +11,7 @@ pub struct SimpleGraph<T> {
 }
 
 #[snippet("@SimpleGraph")]
-impl<T: std::ops::Add + std::ops::Sub<Output = T> + std::marker::Copy + std::cmp::PartialOrd>
-    SimpleGraph<T>
-{
+impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
     // directed: 有向グラフにするかどうか
     pub fn new(n: usize, directed: bool) -> SimpleGraph<T> {
         SimpleGraph::<T> {
