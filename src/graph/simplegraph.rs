@@ -73,21 +73,22 @@ impl<T: std::ops::Add + std::ops::Sub<Output = T> + std::marker::Copy + std::cmp
 impl SimpleGraph<usize> {
     // Dijkstraで1対nの最小距離を求める(vec[from]は自己ループ辺のコストになる)
     pub fn min_dists(&self, from: usize) -> Vec<usize> {
-        let mut visited = vec![false; self.size];
         let mut from_to_n = vec![std::usize::MAX; self.size];
         let mut queue = std::collections::BinaryHeap::new();
         queue.push(std::cmp::Reverse((0, from)));
 
         while !queue.is_empty() {
             let (cost, to) = queue.pop().unwrap().0;
-            if visited[to] {
+            if from_to_n[to] < cost {
                 continue;
             }
-            visited[to] = true;
 
             for &(to_to, to_cost) in &self.edges[to] {
-                from_to_n[to_to] = std::cmp::min(from_to_n[to_to], cost + to_cost);
-                queue.push(std::cmp::Reverse((cost + to_cost, to_to)));
+                let new_cost = cost + to_cost;
+                if from_to_n[to_to] > new_cost {
+                    from_to_n[to_to] = new_cost;
+                    queue.push(std::cmp::Reverse((new_cost, to_to)));
+                }
             }
         }
 
