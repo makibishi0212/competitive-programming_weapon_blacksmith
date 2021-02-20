@@ -92,6 +92,12 @@ impl SimpleGraph<usize> {
 
         from_to_n
     }
+
+    pub fn all_min_dists(&self) -> Vec<Vec<usize>> {
+        (0..self.size)
+            .map(|vertex| self.min_dists(vertex))
+            .collect()
+    }
 }
 
 // 負辺を含むグラフのためのメソッド
@@ -155,6 +161,16 @@ mod test {
         assert_eq!(graph.min_dists(1), vec![253, 353, 100, 250]);
         assert_eq!(graph.min_dists(2), vec![153, 253, 353, 150]);
         assert_eq!(graph.min_dists(3), vec![3, 103, 203, 353]);
+
+        assert_eq!(
+            graph.all_min_dists(),
+            vec![
+                vec![353, 100, 200, 350],
+                vec![253, 353, 100, 250],
+                vec![153, 253, 353, 150],
+                vec![3, 103, 203, 353]
+            ]
+        )
     }
 
     #[test]
