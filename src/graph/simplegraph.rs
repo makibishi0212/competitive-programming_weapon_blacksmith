@@ -69,7 +69,7 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
 // 負辺を含まないグラフのためのメソッド
 #[snippet("@SimpleGraph")]
 impl SimpleGraph<usize> {
-    // Dijkstraで1対nの最小距離を求める(vec[from]は自己ループ辺のコストになる)
+    // Dijkstraで1対nの最小距離を求める(vec[from]は自己ループ辺のコストになる) usize::MAXを超えるものはusize::MAXとして扱う
     pub fn min_dists(&self, from: usize) -> Vec<usize> {
         let mut from_to_n = vec![std::usize::MAX; self.size];
         let mut queue = std::collections::BinaryHeap::new();
