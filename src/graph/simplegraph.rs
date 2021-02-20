@@ -2,7 +2,7 @@ use std::usize;
 
 use cargo_snippet::snippet;
 
-// 多重辺を含まないグラフ。頂点は0-indexed。自己ループ辺はok
+// 多重辺を含むグラフ。頂点は0-indexed。自己ループ辺もok
 #[snippet("@SimpleGraph")]
 pub struct SimpleGraph<T> {
     size: usize,
@@ -14,6 +14,7 @@ pub struct SimpleGraph<T> {
 impl<T: std::ops::Add + std::ops::Sub<Output = T> + std::marker::Copy + std::cmp::PartialOrd>
     SimpleGraph<T>
 {
+    // directed: 有向グラフにするかどうか
     pub fn new(n: usize, directed: bool) -> SimpleGraph<T> {
         SimpleGraph::<T> {
             size: n,
@@ -22,7 +23,6 @@ impl<T: std::ops::Add + std::ops::Sub<Output = T> + std::marker::Copy + std::cmp
         }
     }
 
-    // prior_min_cost: すでに与えられたコストより小さいコストが保存されている時、そちらを優先するかどうか
     pub fn add_edge(&mut self, from: usize, to: usize, cost: T) {
         self.edges[from].push((to, cost));
 
@@ -143,8 +143,6 @@ impl SimpleGraph<i64> {
 }
 
 mod test {
-    use crate::graph;
-
     use super::*;
 
     #[test]
