@@ -82,7 +82,7 @@ impl SimpleGraph<usize> {
             }
 
             for &(to_to, to_cost) in &self.edges[to] {
-                let new_cost = cost + to_cost;
+                let new_cost = cost.saturating_add(to_cost);
                 if from_to_n[to_to] > new_cost {
                     from_to_n[to_to] = new_cost;
                     queue.push(std::cmp::Reverse((new_cost, to_to)));
@@ -174,6 +174,25 @@ mod test {
     }
 
     #[test]
+    fn min_dists_large_number_test() {
+        let mut graph = SimpleGraph::<usize>::new(4, true);
+        graph.add_edge(0, 1, std::usize::MAX / 3 - 1);
+        graph.add_edge(1, 2, std::usize::MAX / 3 - 1);
+        graph.add_edge(2, 3, std::usize::MAX / 3 - 1);
+        graph.add_edge(3, 0, std::usize::MAX / 3 - 1);
+
+        assert_eq!(
+            graph.min_dists(0),
+            vec![
+                std::usize::MAX,
+                std::usize::MAX / 3 - 1,
+                std::usize::MAX / 3 * 2 - 2,
+                std::usize::MAX - 3
+            ]
+        );
+    }
+
+    #[test]
     fn min_dists_self_loop_case_test() {
         let mut graph = SimpleGraph::<usize>::new(4, true);
         graph.add_edge(0, 1, 100);
@@ -207,7 +226,7 @@ mod test {
         assert_eq!(
             graph.min_dists(1),
             vec![
-                18446744073709551615,
+                std::usize::MAX,
                 18446744073709551615,
                 180,
                 18446744073709551615,
