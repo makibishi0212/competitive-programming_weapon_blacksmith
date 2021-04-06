@@ -7,6 +7,7 @@ pub fn golden_section_search<T: std::cmp::PartialOrd>(
     mut max: f64,
     end_width: f64,
 ) -> f64 {
+    assert!(max > min);
     let golden_ratio = (1.0 + (5.0f64).sqrt()) / 2.0;
 
     // 内分点計算
@@ -50,6 +51,7 @@ pub fn golden_section_search_loose<T: std::cmp::PartialOrd>(
     mut max: f64,
     end_width: f64,
 ) -> f64 {
+    assert!(max > min);
     let golden_ratio = (1.0 + (5.0f64).sqrt()) / 2.0;
 
     // 内分点計算
