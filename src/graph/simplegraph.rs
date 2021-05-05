@@ -21,6 +21,15 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
         }
     }
 
+    // nodeに隣接する頂点を列挙
+    pub fn adjacent_nodes(&self, node: usize) -> Vec<usize> {
+        self.edges[node]
+            .iter()
+            .map(|&(adj_node, _)| adj_node)
+            .collect()
+    }
+
+    // 辺の追加 O(1)
     pub fn add_edge(&mut self, from: usize, to: usize, cost: T) {
         self.edges[from].push((to, cost));
 
@@ -30,6 +39,44 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
         }
     }
 
+    // 辺の削除 O(d(from)+d(to))
+    pub fn remove_edge(&mut self, from: usize, to: usize) {
+        let mut remove_index = usize::MAX;
+        self.edges[from]
+            .iter()
+            .enumerate()
+            .for_each(|(index, &(from_adj, _))| {
+                if from_adj == to {
+                    remove_index = index;
+                }
+            });
+        if remove_index == usize::MAX {
+            panic!();
+        }
+
+        self.edges[from].remove(remove_index);
+
+        if self.directed {
+            return;
+        }
+
+        remove_index = usize::MAX;
+        self.edges[to]
+            .iter()
+            .enumerate()
+            .for_each(|(index, &(to_adj, _))| {
+                if to_adj == from {
+                    remove_index = index;
+                }
+            });
+        if remove_index == usize::MAX {
+            panic!();
+        }
+
+        self.edges[to].remove(remove_index);
+    }
+
+    // 頂点のトポロジカルソート
     pub fn topological_sort(&self) -> Vec<usize> {
         let mut result = vec![];
         let mut isolated = std::collections::VecDeque::new();
@@ -94,13 +141,12 @@ impl SimpleGraph<usize> {
     }
 
     pub fn all_min_dists(&self) -> Vec<Vec<usize>> {
-        (0..self.size)
-            .map(|vertex| self.min_dists(vertex))
-            .collect()
+        (0..self.size).map(|node| self.min_dists(node)).collect()
     }
 }
 
 // 負辺を含むグラフのためのメソッド
+#[snippet("@SimpleGraph")]
 impl SimpleGraph<i64> {
     // Bellman-Ford法で1対nの最小距離を求める。負閉路を検出した場合はNone
     // このメソッドでは自己ループ辺を無視する。
@@ -148,6 +194,68 @@ impl SimpleGraph<i64> {
 
 mod test {
     use super::*;
+
+    #[test]
+    fn add_edge_directed_graph_test() {
+        let mut graph = SimpleGraph::<usize>::new(5, true);
+        graph.add_edge(1, 0, 1);
+        graph.add_edge(1, 2, 1);
+        graph.add_edge(1, 3, 1);
+        graph.add_edge(1, 4, 1);
+
+        assert_eq!(graph.adjacent_nodes(1), vec![0, 2, 3, 4]);
+        assert_eq!(graph.adjacent_nodes(0), vec![]);
+        assert_eq!(graph.adjacent_nodes(2), vec![]);
+        assert_eq!(graph.adjacent_nodes(3), vec![]);
+        assert_eq!(graph.adjacent_nodes(4), vec![]);
+    }
+
+    #[test]
+    fn remove_edge_directed_graph_test() {
+        let mut graph = SimpleGraph::<usize>::new(5, true);
+        graph.add_edge(1, 0, 1);
+        graph.add_edge(1, 2, 1);
+        graph.add_edge(1, 3, 1);
+        graph.add_edge(1, 4, 1);
+
+        graph.remove_edge(1, 0);
+        graph.remove_edge(1, 3);
+
+        assert_eq!(graph.adjacent_nodes(1), vec![2, 4]);
+    }
+
+    #[test]
+    fn add_edge_undirected_graph_test() {
+        let mut graph = SimpleGraph::<usize>::new(5, false);
+        graph.add_edge(1, 0, 1);
+        graph.add_edge(1, 2, 1);
+        graph.add_edge(1, 3, 1);
+        graph.add_edge(1, 4, 1);
+
+        assert_eq!(graph.adjacent_nodes(1), vec![0, 2, 3, 4]);
+        assert_eq!(graph.adjacent_nodes(0), vec![1]);
+        assert_eq!(graph.adjacent_nodes(2), vec![1]);
+        assert_eq!(graph.adjacent_nodes(3), vec![1]);
+        assert_eq!(graph.adjacent_nodes(4), vec![1]);
+    }
+
+    #[test]
+    fn remove_edge_undirected_graph_test() {
+        let mut graph = SimpleGraph::<usize>::new(5, false);
+        graph.add_edge(1, 0, 1);
+        graph.add_edge(1, 2, 1);
+        graph.add_edge(1, 3, 1);
+        graph.add_edge(1, 4, 1);
+
+        graph.remove_edge(1, 0);
+        graph.remove_edge(1, 3);
+
+        assert_eq!(graph.adjacent_nodes(1), vec![2, 4]);
+        assert_eq!(graph.adjacent_nodes(0), vec![]);
+        assert_eq!(graph.adjacent_nodes(2), vec![1]);
+        assert_eq!(graph.adjacent_nodes(3), vec![]);
+        assert_eq!(graph.adjacent_nodes(4), vec![1]);
+    }
 
     #[test]
     fn min_dists_test() {
