@@ -1,5 +1,3 @@
-use std::usize;
-
 use cargo_snippet::snippet;
 
 // 多重辺を含むグラフ。頂点は0-indexed。自己ループ辺もok
@@ -110,6 +108,76 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
         }
 
         result
+    }
+
+    pub fn scc_decomposition(&self) -> Vec<Vec<usize>> {
+        let mut num = vec![0; self.size];
+        let mut low = vec![0; self.size];
+        let mut stack: std::collections::VecDeque<usize> =
+            std::collections::VecDeque::<usize>::new();
+        let mut inStack = vec![false; self.size];
+
+        let mut scc: Vec<Vec<usize>> = vec![];
+
+        struct VisitEnv<'a, T> {
+            scc: &'a mut Vec<Vec<usize>>,
+            stack: &'a mut std::collections::VecDeque<usize>,
+            inStack: &'a mut Vec<bool>,
+            low: &'a mut Vec<usize>,
+            num: &'a mut Vec<usize>,
+            graph: &'a SimpleGraph<T>,
+        };
+
+        fn visit<T>(env: &mut VisitEnv<T>, v: usize, depth: usize) {
+            env.low[v] = depth;
+            env.num[v] = depth;
+            let new_depth = depth + 1;
+
+            env.stack.push_back(v);
+            env.inStack[v] = true;
+
+            env.graph.edges[v].iter().for_each(|&(to, _)| {
+                if env.num[to] == 0 {
+                    visit(env, to, new_depth);
+                    env.low[v] = std::cmp::min(env.low[v], env.low[to]);
+                } else if env.inStack[to] {
+                    env.low[v] = std::cmp::min(env.low[v], env.num[to]);
+                }
+            });
+
+            if env.low[v] == env.num[v] {
+                let mut vertexes = vec![];
+
+                loop {
+                    let to = env.stack.pop_back().unwrap();
+                    env.inStack[to] = false;
+                    vertexes.push(to);
+
+                    if to == v {
+                        env.scc.push(vertexes);
+                        break;
+                    }
+                }
+            }
+        };
+
+        let mut env = VisitEnv::<T> {
+            scc: &mut scc,
+            stack: &mut stack,
+            inStack: &mut inStack,
+            low: &mut low,
+            num: &mut num,
+            graph: self,
+        };
+
+        for i in 0..self.size {
+            let i_num = env.num[i];
+            if i_num == 0 {
+                visit(&mut env, i, 0);
+            }
+        }
+
+        scc
     }
 }
 
@@ -442,5 +510,31 @@ mod test {
         graph.add_edge(0, 1, 1);
         graph.add_edge(1, 2, 1);
         assert_eq!(graph.topological_sort(), vec![0, 3, 1, 2]);
+    }
+
+    #[test]
+    fn scc_decomposition_test() {
+        let mut graph = SimpleGraph::<usize>::new(8, false);
+        graph.add_edge(0, 1, 1);
+        graph.add_edge(2, 3, 1);
+        graph.add_edge(4, 5, 1);
+        graph.add_edge(5, 6, 1);
+        graph.add_edge(6, 4, 1);
+        let scc = graph.scc_decomposition();
+        assert_eq!(scc, vec![vec![0, 1], vec![2, 3], vec![6, 4, 5], vec![7]]);
+
+        let mut directed_graph = SimpleGraph::<usize>::new(5, true);
+        for i in 0..4 {
+            directed_graph.add_edge(i, i + 1, 1);
+        }
+        let scc = directed_graph.scc_decomposition();
+        assert_eq!(scc, vec![vec![4], vec![3], vec![2], vec![1], vec![0]]);
+
+        let mut undirected_graph = SimpleGraph::<usize>::new(5, false);
+        for i in 0..4 {
+            undirected_graph.add_edge(i, i + 1, 1);
+        }
+        let scc = undirected_graph.scc_decomposition();
+        assert_eq!(scc, vec![vec![4, 3, 2, 0, 1]]);
     }
 }
