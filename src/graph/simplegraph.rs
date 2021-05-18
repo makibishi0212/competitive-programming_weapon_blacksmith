@@ -110,6 +110,7 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
         result
     }
 
+    // 強連結成分分解
     pub fn scc_decomposition(&self) -> Vec<Vec<usize>> {
         let mut num = vec![0; self.size];
         let mut low = vec![0; self.size];
@@ -137,6 +138,10 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
             env.inStack[v] = true;
 
             env.graph.edges[v].iter().for_each(|&(to, _)| {
+                if v == to {
+                    return;
+                }
+
                 if env.num[to] == 0 {
                     visit(env, to, new_depth);
                     env.low[v] = std::cmp::min(env.low[v], env.low[to]);
@@ -536,5 +541,10 @@ mod test {
         }
         let scc = undirected_graph.scc_decomposition();
         assert_eq!(scc, vec![vec![4, 3, 2, 0, 1]]);
+
+        let mut self_loop_graph = SimpleGraph::<usize>::new(5, true);
+        self_loop_graph.add_edge(0, 0, 1);
+        let scc = self_loop_graph.scc_decomposition();
+        assert_eq!(scc, vec![vec![0], vec![1], vec![2], vec![3], vec![4]]);
     }
 }
