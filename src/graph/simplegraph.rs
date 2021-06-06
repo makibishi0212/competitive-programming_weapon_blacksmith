@@ -14,7 +14,7 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
     pub fn new(n: usize, directed: bool) -> SimpleGraph<T> {
         SimpleGraph::<T> {
             size: n,
-            edges: vec![Vec::with_capacity(n); n],
+            edges: vec![vec![]; n],
             directed,
         }
     }
@@ -84,9 +84,12 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
 
         let isolate_deg = if self.directed { 0 } else { 1 };
 
-        self.edges.iter().enumerate().for_each(|(_, v_edges)| {
+        self.edges.iter().enumerate().for_each(|(from, v_edges)| {
             v_edges.iter().for_each(|&(to, _)| {
-                degs[to] += 1;
+                // 多重辺は無視
+                if from != to {
+                    degs[to] += 1;
+                }
             });
         });
 
@@ -110,79 +113,132 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
         result
     }
 
-    // 強連結成分分解
-    pub fn scc_decomposition(&self) -> Vec<Vec<usize>> {
-        let mut num = vec![0; self.size];
-        let mut low = vec![0; self.size];
-        let mut stack: std::collections::VecDeque<usize> =
-            std::collections::VecDeque::<usize>::new();
-        let mut inStack = vec![false; self.size];
+    /// return pair of (# of scc, scc id)
+    fn scc_ids(&self) -> (usize, Vec<usize>) {
+        // Compressed sparse row?
+        pub struct Csr {
+            start: Vec<usize>,
+            elist: Vec<usize>,
+        }
 
-        let mut scc: Vec<Vec<usize>> = vec![];
+        impl Csr {
+            pub fn new(n: usize, edges: &Vec<Vec<usize>>) -> Self {
+                let mut e_count = 0;
+                edges.iter().for_each(|edges_f| {
+                    e_count += edges_f.len();
+                });
 
-        struct VisitEnv<'a, T> {
-            scc: &'a mut Vec<Vec<usize>>,
-            stack: &'a mut std::collections::VecDeque<usize>,
-            inStack: &'a mut Vec<bool>,
-            low: &'a mut Vec<usize>,
-            num: &'a mut Vec<usize>,
-            graph: &'a SimpleGraph<T>,
-        };
-
-        fn visit<T>(env: &mut VisitEnv<T>, v: usize, depth: usize) {
-            env.low[v] = depth;
-            env.num[v] = depth;
-            let new_depth = depth + 1;
-
-            env.stack.push_back(v);
-            env.inStack[v] = true;
-
-            env.graph.edges[v].iter().for_each(|&(to, _)| {
-                if v == to {
-                    return;
-                }
-
-                if env.num[to] == 0 {
-                    visit(env, to, new_depth);
-                    env.low[v] = std::cmp::min(env.low[v], env.low[to]);
-                } else if env.inStack[to] {
-                    env.low[v] = std::cmp::min(env.low[v], env.num[to]);
-                }
-            });
-
-            if env.low[v] == env.num[v] {
-                let mut vertexes = vec![];
-
-                loop {
-                    let to = env.stack.pop_back().unwrap();
-                    env.inStack[to] = false;
-                    vertexes.push(to);
-
-                    if to == v {
-                        env.scc.push(vertexes);
-                        break;
+                let mut csr = Csr {
+                    start: vec![0; n + 1],
+                    elist: vec![0; e_count],
+                };
+                for i in 0..edges.len() {
+                    let from = i;
+                    let edges_f = &edges[from];
+                    for _ in edges_f.iter() {
+                        csr.start[from + 1] += 1;
                     }
                 }
-            }
-        };
 
-        let mut env = VisitEnv::<T> {
-            scc: &mut scc,
-            stack: &mut stack,
-            inStack: &mut inStack,
-            low: &mut low,
-            num: &mut num,
-            graph: self,
-        };
+                for i in 1..=n {
+                    csr.start[i] += csr.start[i - 1];
+                }
 
-        for i in 0..self.size {
-            let i_num = env.num[i];
-            if i_num == 0 {
-                visit(&mut env, i, 0);
+                let mut counter = csr.start.clone();
+                for i in 0..edges.len() {
+                    let edges_f = &edges[i];
+                    let from = i;
+                    for to in edges_f.iter() {
+                        csr.elist[counter[from]] = *to;
+                        counter[from] += 1;
+                    }
+                }
+
+                csr
             }
         }
 
-        scc
+        struct _Env {
+            graph: Csr,
+            now_ord: usize,
+            group_num: usize,
+            visited: Vec<usize>,
+            low: Vec<usize>,
+            ord: Vec<Option<usize>>,
+            ids: Vec<usize>,
+        }
+
+        // pure_edges[from] = [to1,to2,to3]
+        let pure_edges: Vec<Vec<usize>> = self
+            .edges
+            .iter()
+            .map(|edges_f| edges_f.iter().map(|e| e.0).collect())
+            .collect();
+
+        let mut env = _Env {
+            graph: Csr::new(self.size, &pure_edges),
+            now_ord: 0,
+            group_num: 0,
+            visited: Vec::with_capacity(self.size),
+            low: vec![0; self.size],
+            ord: vec![None; self.size],
+            ids: vec![0; self.size],
+        };
+
+        fn dfs(v: usize, n: usize, env: &mut _Env) {
+            env.low[v] = env.now_ord;
+            env.ord[v] = Some(env.now_ord);
+            env.now_ord += 1;
+            env.visited.push(v);
+
+            for i in env.graph.start[v]..env.graph.start[v + 1] {
+                let to = env.graph.elist[i];
+                if let Some(x) = env.ord[to] {
+                    env.low[v] = std::cmp::min(env.low[v], x);
+                } else {
+                    dfs(to, n, env);
+                    env.low[v] = std::cmp::min(env.low[v], env.low[to]);
+                }
+            }
+            if env.low[v] == env.ord[v].unwrap() {
+                loop {
+                    let u = *env.visited.last().unwrap();
+                    env.visited.pop();
+                    env.ord[u] = Some(n);
+                    env.ids[u] = env.group_num;
+                    if u == v {
+                        break;
+                    }
+                }
+                env.group_num += 1;
+            }
+        }
+        for i in 0..self.size {
+            if env.ord[i].is_none() {
+                dfs(i, self.size, &mut env);
+            }
+        }
+        for x in env.ids.iter_mut() {
+            *x = env.group_num - 1 - *x;
+        }
+        (env.group_num, env.ids)
+    }
+
+    pub fn scc(&self) -> Vec<Vec<usize>> {
+        let ids = self.scc_ids();
+        let group_num = ids.0;
+        let mut counts = vec![0usize; group_num];
+        for &x in ids.1.iter() {
+            counts[x] += 1;
+        }
+        let mut groups: Vec<Vec<usize>> = (0..ids.0).map(|_| vec![]).collect();
+        for i in 0..group_num {
+            groups[i].reserve(counts[i]);
+        }
+        for i in 0..self.size {
+            groups[ids.1[i]].push(i);
+        }
+        groups
     }
 }
 
@@ -506,6 +562,16 @@ mod test {
         graph.add_edge(3, 2, 1);
         graph.add_edge(2, 4, 1);
         assert_eq!(graph.topological_sort(), vec![0, 3, 1, 2, 4]);
+
+        let mut graph = SimpleGraph::<usize>::new(7, true);
+        graph.add_edge(1, 4, 1);
+        graph.add_edge(5, 2, 1);
+        graph.add_edge(3, 0, 1);
+        graph.add_edge(5, 5, 1);
+        graph.add_edge(4, 1, 1);
+        graph.add_edge(0, 3, 1);
+        graph.add_edge(4, 2, 1);
+        assert_eq!(graph.topological_sort(), vec![5, 6]);
     }
 
     #[test]
@@ -518,33 +584,33 @@ mod test {
     }
 
     #[test]
-    fn scc_decomposition_test() {
+    fn scc_test() {
         let mut graph = SimpleGraph::<usize>::new(8, false);
         graph.add_edge(0, 1, 1);
         graph.add_edge(2, 3, 1);
         graph.add_edge(4, 5, 1);
         graph.add_edge(5, 6, 1);
         graph.add_edge(6, 4, 1);
-        let scc = graph.scc_decomposition();
-        assert_eq!(scc, vec![vec![0, 1], vec![2, 3], vec![6, 4, 5], vec![7]]);
+        let scc = graph.scc();
+        assert_eq!(scc, vec![vec![7], vec![4, 5, 6], vec![2, 3], vec![0, 1]]);
 
         let mut directed_graph = SimpleGraph::<usize>::new(5, true);
         for i in 0..4 {
             directed_graph.add_edge(i, i + 1, 1);
         }
-        let scc = directed_graph.scc_decomposition();
-        assert_eq!(scc, vec![vec![4], vec![3], vec![2], vec![1], vec![0]]);
+        let scc = directed_graph.scc();
+        assert_eq!(scc, vec![vec![0], vec![1], vec![2], vec![3], vec![4]]);
 
         let mut undirected_graph = SimpleGraph::<usize>::new(5, false);
         for i in 0..4 {
             undirected_graph.add_edge(i, i + 1, 1);
         }
-        let scc = undirected_graph.scc_decomposition();
-        assert_eq!(scc, vec![vec![4, 3, 2, 0, 1]]);
+        let scc = undirected_graph.scc();
+        assert_eq!(scc, vec![vec![0, 1, 2, 3, 4]]);
 
         let mut self_loop_graph = SimpleGraph::<usize>::new(5, true);
         self_loop_graph.add_edge(0, 0, 1);
-        let scc = self_loop_graph.scc_decomposition();
-        assert_eq!(scc, vec![vec![0], vec![1], vec![2], vec![3], vec![4]]);
+        let scc = self_loop_graph.scc();
+        assert_eq!(scc, vec![vec![4], vec![3], vec![2], vec![1], vec![0]]);
     }
 }
