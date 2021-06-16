@@ -108,5 +108,25 @@ mod test {
         assert_eq!(st.query(7, 8), 199999);
         assert_eq!(st.query(7, 9), 0);
         assert_eq!(st.query(1, 4), 38);
+
+        // 最大公約数
+        let st = SparseTable::new(vec![4, 4, 6, 6, 5], |a, b| {
+            let mut aa: usize = if a > b { a } else { b };
+            let mut bb: usize = if a > b { b } else { a };
+            while bb != 0 {
+                let tmp = bb;
+                bb = aa % tmp;
+                aa = tmp;
+            }
+            return aa;
+        });
+        assert_eq!(st.query(0, 1), 4);
+        assert_eq!(st.query(0, 2), 4);
+        assert_eq!(st.query(0, 3), 2);
+        assert_eq!(st.query(0, 4), 2);
+        assert_eq!(st.query(0, 5), 1);
+
+        assert_eq!(st.query(2, 4), 6);
+        assert_eq!(st.query(4, 5), 5);
     }
 }
