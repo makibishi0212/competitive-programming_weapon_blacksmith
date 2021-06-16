@@ -14,7 +14,7 @@ pub struct SparseTable<T: std::clone::Clone + std::fmt::Debug> {
 impl<T: std::clone::Clone + std::fmt::Debug> SparseTable<T> {
     pub fn new(array: Vec<T>, operation: fn(T, T) -> T) -> SparseTable<T> {
         let mut table_length = 0;
-        while (1 << table_length) < array.len() {
+        while (1 << table_length) <= array.len() {
             table_length += 1;
         }
 
@@ -82,6 +82,7 @@ impl<T: std::clone::Clone + std::fmt::Debug> SparseTable<T> {
 
 mod test {
     use super::*;
+    use proptest::prelude::*;
 
     #[test]
     fn sparse_table_test() {
@@ -128,5 +129,25 @@ mod test {
 
         assert_eq!(st.query(2, 4), 6);
         assert_eq!(st.query(4, 5), 5);
+    }
+
+    proptest! {
+        #[test]
+        fn random_array_min(array :Vec<usize>) {
+            if  let Some(min) = array.iter().min() {
+                let st = SparseTable::new(array.clone(),|a, b| cmp::min(a, b));
+                let result =st.query(0, array.len());
+                assert_eq!(result,*min);
+            }
+        }
+
+        #[test]
+        fn random_array_max(array :Vec<usize>) {
+            if  let Some(max) = array.iter().max() {
+                let st = SparseTable::new(array.clone(),|a, b| cmp::max(a, b));
+                let result =st.query(0, array.len());
+                assert_eq!(result,*max);
+            }
+        }
     }
 }
