@@ -1,4 +1,6 @@
 use cargo_snippet::snippet;
+
+use crate::power::isqrt::IntSqrtPower;
 // 約数系
 
 // エラストテネスの篩
@@ -36,23 +38,26 @@ pub fn eratosthenes(n: usize) -> Vec<usize> {
 // 素因数分解
 #[snippet("@prime_factorize")]
 pub fn prime_factorize(mut num: usize) -> std::collections::HashMap<usize, usize> {
-    let primes = eratosthenes(num);
+    let num_sqrt = num.sqrt();
+    let primes = eratosthenes(num_sqrt);
     let mut divisors = std::collections::HashMap::new();
 
     let mut now = primes.len();
-    while num != 1 {
+    while num != 1 && now > 0 {
         now -= 1;
         let now_prime = primes[now];
         let mut count = 0;
-
         while num % now_prime == 0 {
             num /= now_prime;
             count += 1;
         }
-
         if count != 0 {
             divisors.insert(now_prime, count);
         }
+    }
+
+    if num != 1 {
+        divisors.insert(num, 1);
     }
 
     divisors

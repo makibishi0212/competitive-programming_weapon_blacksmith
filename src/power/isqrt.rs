@@ -2,11 +2,13 @@ use cargo_snippet::snippet;
 use std::{cmp, usize};
 
 #[snippet("@IntSqrtPower")]
+#[snippet("@prime_factorize")]
 pub trait IntSqrtPower {
     fn sqrt(&self) -> usize;
 }
 
 #[snippet("@IntSqrtPower")]
+#[snippet("@prime_factorize")]
 impl IntSqrtPower for usize {
     fn sqrt(&self) -> usize {
         if *self <= 1 {
