@@ -87,6 +87,7 @@ pub fn enumerate_divisor(n: usize) -> Vec<usize> {
 
 mod test {
     use super::*;
+    use proptest::prelude::*;
     #[test]
     fn test_eratosthenes() {
         assert_eq!(eratosthenes(2), vec![2]);
@@ -154,5 +155,49 @@ mod test {
         let mut result999773 = std::collections::HashMap::new();
         result999773.insert(999773, 1);
         assert_eq!(prime_factorize(999773), result999773);
+
+        let mut result1000000007 = std::collections::HashMap::new();
+        result1000000007.insert(1000000007, 1);
+        assert_eq!(prime_factorize(1000000007), result1000000007);
+
+        let mut result999546051529 = std::collections::HashMap::new();
+        result999546051529.insert(999773, 2);
+        assert_eq!(prime_factorize(999546051529), result999546051529);
+    }
+
+    proptest! {
+        #[test]
+        fn prime_factorize_random_num(a :u16, b :u32,c:u32) {
+            let mut a = a as usize;
+            a/=3;
+            a+=5;
+            let primes = eratosthenes(a);
+
+            // prime = (a/3+5)以下の最大の素数
+            let prime = primes[primes.len()-1];
+
+
+            let mut b = (b%5) as usize;
+            b+=1;
+
+            let mut c = (c%3) as usize;
+            c+=1;
+
+            let mut result = std::collections::HashMap::new();
+            result.insert(prime,1);
+            result.insert(3, b);
+            result.insert(2, c);
+
+            let mut num = prime;
+            for _ in 0..b {
+                num *=3;
+            }
+
+            for _ in 0..c {
+                num *=2;
+            }
+
+          prop_assert_eq!(prime_factorize(num),result);
+        }
     }
 }
