@@ -60,14 +60,16 @@ mod test {
 
     proptest! {
       #[test]
-      fn lcm_random_num(a :u16, b :u16) {
+
+      // gcd(a,b) * lcm(a,b) == a*bは常に成り立つ
+      fn lcm_random(a :u16, b :u16) {
           let a = a as usize;
           let b = b as usize;
         prop_assert!(gcd(a,b) * lcm(a,b) == a*b);
       }
 
       #[test]
-      fn extgcd_random_num(a :u16, b :u16) {
+      fn extgcd_random(a :u16, b :u16) {
           let a = a as i64;
           let b = b as i64;
 
