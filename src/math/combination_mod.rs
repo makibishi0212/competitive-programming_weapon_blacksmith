@@ -1,3 +1,5 @@
+use std::process::Output;
+
 use crate::math::gcd::extgcd;
 use cargo_snippet::snippet;
 
@@ -43,13 +45,7 @@ pub fn prime_inverse_mod<
 #[snippet("@inverse_mod")]
 // must gcd(element, modulo) = 1
 pub fn inverse_mod<
-    T: num::Unsigned
-        + std::ops::BitAnd<Output = T>
-        + std::ops::Shl<Output = T>
-        + std::cmp::PartialOrd
-        + num::ToPrimitive
-        + num::FromPrimitive
-        + Copy,
+    T: num::Unsigned + std::cmp::PartialOrd + num::ToPrimitive + num::FromPrimitive + Copy,
 >(
     element: T,
     modulo: T,
@@ -67,12 +63,24 @@ pub fn inverse_mod<
 
 #[snippet("@permutation_mod")]
 #[snippet("@prime_combination_mod")]
-pub fn permutation_mod(m: usize, n: usize, modulo: usize) -> usize {
+pub fn permutation_mod<
+    T: num::Unsigned
+        + num::ToPrimitive
+        + num::FromPrimitive
+        + std::ops::MulAssign<T>
+        + std::ops::RemAssign<T>
+        + Copy,
+>(
+    m: T,
+    n: T,
+    modulo: T,
+) -> T {
     // m P n = m! / (m - n)!
     //       = m*(m-1)*(m-2)*...*(m-n+1)
-    let mut numerator = 1;
-    for i in 0..n {
-        numerator *= m - i;
+    let mut numerator: T = num::one();
+    let len = n.to_usize().unwrap();
+    for i in 0..len {
+        numerator *= m - T::from_usize(i).unwrap();
         numerator %= modulo;
     }
 
