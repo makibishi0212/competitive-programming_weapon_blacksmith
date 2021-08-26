@@ -23,10 +23,7 @@ pub fn lcm(a: usize, b: usize) -> usize {
 // 拡張ユークリッド ax+by=gcd(a,b)を解き、x,yを返す
 #[snippet("@extgcd")]
 #[snippet("@inverse_mod")]
-pub fn extgcd<T: num::Integer + std::ops::BitAnd<Output = T> + std::ops::Shl<Output = T> + Copy>(
-    a: T,
-    b: T,
-) -> (T, T) {
+pub fn extgcd<T: num::Num + Copy>(a: T, b: T) -> (T, T) {
     if b == num::zero() {
         return (num::one(), num::zero());
     }
@@ -56,6 +53,7 @@ mod test {
         assert_eq!(lcm(1267, 741238), 939148546);
     }
 
+    #[test]
     fn extgcd_test() {
         assert_eq!(extgcd(111, 30), (3, -11));
     }

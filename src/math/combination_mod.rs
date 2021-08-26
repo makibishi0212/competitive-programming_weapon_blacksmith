@@ -42,13 +42,26 @@ pub fn prime_inverse_mod<
 
 #[snippet("@inverse_mod")]
 // must gcd(element, modulo) = 1
-pub fn inverse_mod(element: usize, modulo: usize) -> usize {
-    assert!(1 <= modulo);
-    let i_element = element as i64;
-    let i_modulo = modulo as i64;
+pub fn inverse_mod<
+    T: num::Unsigned
+        + std::ops::BitAnd<Output = T>
+        + std::ops::Shl<Output = T>
+        + std::cmp::PartialOrd
+        + num::ToPrimitive
+        + num::FromPrimitive
+        + Copy,
+>(
+    element: T,
+    modulo: T,
+) -> T {
+    let one: T = num::one();
+    assert!(one <= modulo);
+    let i_element = element.to_isize().unwrap();
+    let i_modulo = modulo.to_isize().unwrap();
     let (x, _) = extgcd(i_element, i_modulo);
-    let ans = ((x + i_modulo) % i_modulo) as usize;
-    assert!(ans * element % modulo == 1); // ansが逆数になっていないならエラー
+    let ans = (x + i_modulo) % i_modulo;
+    let ans = T::from_isize(ans).unwrap();
+    assert!(ans * element % modulo == num::one()); // ansが逆数になっていないならエラー
     ans
 }
 
@@ -136,11 +149,11 @@ fn prime_inverse_mod_test() {
 #[test]
 fn inverse_mod_test() {
     // prime_inverse_modのテストは当然通る
-    assert_eq!(inverse_mod(700, 11), 8);
-    assert_eq!(inverse_mod(3, 2), 1);
-    assert_eq!(inverse_mod(1, 2), 1);
-    assert_eq!(inverse_mod(1, 11), 1);
-    assert_eq!(inverse_mod(1, 53), 1);
+    assert_eq!(inverse_mod(700, 11), 8usize);
+    assert_eq!(inverse_mod(3, 2), 1usize);
+    assert_eq!(inverse_mod(1, 2), 1usize);
+    assert_eq!(inverse_mod(1, 11), 1usize);
+    assert_eq!(inverse_mod(1, 53), 1usize);
     assert_eq!(inverse_mod(1, LARGE_PRIME), 1);
     assert_eq!(
         (99 * inverse_mod(99, LARGE_PRIME) as i64) % LARGE_PRIME as i64,
@@ -153,14 +166,14 @@ fn inverse_mod_test() {
         1
     );
 
-    assert_eq!(inverse_mod(2, 11), 6); // 2*6 % 11 = 1
-    assert_eq!(inverse_mod(6, 11), 2); // 2*6 % 11 = 1
-    assert_eq!(inverse_mod(2, 9), 5); // 2*5 % 9 = 1
-    assert_eq!(inverse_mod(8, 9), 8); // 8*8 % 9 = 1
-    assert_eq!(inverse_mod(8, 9), 8); // 8*8 % 9 = 1
+    assert_eq!(inverse_mod(2, 11), 6usize); // 2*6 % 11 = 1
+    assert_eq!(inverse_mod(6, 11), 2usize); // 2*6 % 11 = 1
+    assert_eq!(inverse_mod(2, 9), 5usize); // 2*5 % 9 = 1
+    assert_eq!(inverse_mod(8, 9), 8usize); // 8*8 % 9 = 1
+    assert_eq!(inverse_mod(8, 9), 8usize); // 8*8 % 9 = 1
 
-    assert_eq!(inverse_mod(12, 125), 73); // 12*73 % 125 = 1
-    assert_eq!(inverse_mod(12521, 5736), 257); // 12521*257 % 5736 = 1
+    assert_eq!(inverse_mod(12, 125), 73usize); // 12*73 % 125 = 1
+    assert_eq!(inverse_mod(12521, 5736), 257usize); // 12521*257 % 5736 = 1
 }
 
 #[test]
