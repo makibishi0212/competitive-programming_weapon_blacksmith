@@ -23,9 +23,12 @@ pub fn lcm(a: usize, b: usize) -> usize {
 // 拡張ユークリッド ax+by=gcd(a,b)を解き、x,yを返す
 #[snippet("@extgcd")]
 #[snippet("@inverse_mod")]
-pub fn extgcd(a: i64, b: i64) -> (i64, i64) {
-    if b == 0 {
-        return (1, 0);
+pub fn extgcd<T: num::Integer + std::ops::BitAnd<Output = T> + std::ops::Shl<Output = T> + Copy>(
+    a: T,
+    b: T,
+) -> (T, T) {
+    if b == num::zero() {
+        return (num::one(), num::zero());
     }
 
     let d = extgcd(b, a % b);
