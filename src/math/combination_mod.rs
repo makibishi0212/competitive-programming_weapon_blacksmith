@@ -27,10 +27,17 @@ pub fn power_mod<
 #[snippet("@prime_inverse_mod")]
 #[snippet("@prime_combination_mod")]
 // 逆元
-pub fn prime_inverse_mod(element: usize, prime_modulo: usize) -> usize {
+pub fn prime_inverse_mod<
+    T: num::Unsigned + std::ops::BitAnd<Output = T> + std::ops::Shl<Output = T> + Copy,
+>(
+    element: T,
+    prime_modulo: T,
+) -> T {
     // フェルマーの小定理からpが素数なら a^(p-1) = 1
     // よってa*a^(p-2) = 1 より a^(p-2)がaの逆元
-    power_mod(element, prime_modulo - 2, prime_modulo) % prime_modulo
+    let one: T = num::one();
+    let two: T = one + one;
+    power_mod(element, prime_modulo - two, prime_modulo) % prime_modulo
 }
 
 #[snippet("@inverse_mod")]
@@ -108,11 +115,11 @@ fn power_mod_test() {
 
 #[test]
 fn prime_inverse_mod_test() {
-    assert_eq!(prime_inverse_mod(700, 11), 8);
-    assert_eq!(prime_inverse_mod(3, 2), 1);
-    assert_eq!(prime_inverse_mod(1, 2), 1);
-    assert_eq!(prime_inverse_mod(1, 11), 1);
-    assert_eq!(prime_inverse_mod(1, 53), 1);
+    assert_eq!(prime_inverse_mod(700u64, 11), 8);
+    assert_eq!(prime_inverse_mod(3u64, 2), 1);
+    assert_eq!(prime_inverse_mod(1u64, 2), 1);
+    assert_eq!(prime_inverse_mod(1u64, 11), 1);
+    assert_eq!(prime_inverse_mod(1u64, 53), 1);
     assert_eq!(prime_inverse_mod(1, LARGE_PRIME), 1);
     assert_eq!((99 * prime_inverse_mod(99, LARGE_PRIME)) % LARGE_PRIME, 1);
     assert_eq!((558 * prime_inverse_mod(558, LARGE_PRIME)) % LARGE_PRIME, 1);
