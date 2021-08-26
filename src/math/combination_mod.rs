@@ -112,16 +112,30 @@ pub fn factorial_mod<
 }
 
 #[snippet("@prime_combination_mod")]
-pub fn prime_combination_mod(m: usize, n: usize, prime_modulo: usize) -> usize {
+pub fn prime_combination_mod<
+    T: num::Unsigned
+        + num::ToPrimitive
+        + num::FromPrimitive
+        + std::ops::MulAssign<T>
+        + std::ops::RemAssign<T>
+        + std::ops::BitAnd<Output = T>
+        + std::ops::Shl<Output = T>
+        + Copy,
+>(
+    m: T,
+    n: T,
+    prime_modulo: T,
+) -> T {
     // m C n = m! / ( n! * (m - n)! )
     //       = m*(m-1)*(m-2)*...*(m-n+1)/n!
     //       = m*(m-1)*(m-2)*...*(m-n+1) * (n!)^-1
     let permutation = permutation_mod(m, n, prime_modulo);
 
     // n!
-    let mut element = 1;
-    for j in 1..(n + 1) {
-        element *= j;
+    let mut element: T = num::one();
+    let len = (n + num::one()).to_usize().unwrap();
+    for j in 1..len {
+        element *= T::from_usize(j).unwrap();
         element %= prime_modulo;
     }
     permutation * prime_inverse_mod(element, prime_modulo) % prime_modulo
