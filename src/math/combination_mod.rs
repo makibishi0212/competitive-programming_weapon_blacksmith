@@ -1,5 +1,3 @@
-use std::process::Output;
-
 use crate::math::gcd::extgcd;
 use cargo_snippet::snippet;
 
@@ -157,6 +155,9 @@ fn power_mod_test() {
     assert_eq!(power_mod(13, 12, LARGE_PRIME2), 35036178);
     assert_eq!(power_mod(19, 11, LARGE_PRIME2), 8466704);
     assert_eq!(power_mod(7, 0, LARGE_PRIME), 1);
+
+    assert_eq!(power_mod(4u8, 2, 15), 1);
+    assert_eq!(power_mod(8u16, 5, 32767), 1);
 }
 
 #[test]
@@ -177,6 +178,9 @@ fn prime_inverse_mod_test() {
         (4321321 * prime_inverse_mod(4321321, LARGE_PRIME)) % LARGE_PRIME,
         1
     );
+
+    assert_eq!(prime_inverse_mod(2u8, 17), 9);
+    assert_eq!(prime_inverse_mod(2u16, 97), 49);
 }
 
 #[test]
@@ -207,6 +211,9 @@ fn inverse_mod_test() {
 
     assert_eq!(inverse_mod(12, 125), 73usize); // 12*73 % 125 = 1
     assert_eq!(inverse_mod(12521, 5736), 257usize); // 12521*257 % 5736 = 1
+
+    assert_eq!(inverse_mod(2u8, 17), 9);
+    assert_eq!(inverse_mod(2u16, 97), 49);
 }
 
 #[test]
@@ -214,6 +221,9 @@ fn factorial_mod_test() {
     assert_eq!(factorial_mod(5, LARGE_PRIME), 120);
     assert_eq!(factorial_mod(10, LARGE_PRIME), 3628800);
     assert_eq!(factorial_mod(40, LARGE_PRIME), 799434881);
+
+    assert_eq!(factorial_mod(10u8, 32), 0); // 3628800 % 32 = 0
+    assert_eq!(factorial_mod(12u16, 8316), 0); // 479001600 % 8316 = 0
 }
 
 #[test]
@@ -229,4 +239,6 @@ fn prime_combination_mod_test() {
     assert_eq!(prime_combination_mod(10, 10, LARGE_PRIME), 1);
     assert_eq!(prime_combination_mod(20, 10, LARGE_PRIME), 184756);
     assert_eq!(prime_combination_mod(777, 77, LARGE_PRIME), 494594013);
+
+    assert_eq!(prime_combination_mod(32u16, 7, 197), 111); // 32C7(3365856) % 197 = 111
 }
