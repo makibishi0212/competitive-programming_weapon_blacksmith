@@ -1,8 +1,8 @@
 use cargo_snippet::snippet;
 
 #[snippet("@ceil")]
-pub fn ceil(top: usize, bottom: usize) -> usize {
-    (top + bottom - 1) / bottom
+pub fn ceil<T: num::Integer + Copy>(top: T, bottom: T) -> T {
+    (top + bottom - num::one()) / bottom
 }
 
 mod test {
@@ -16,6 +16,10 @@ mod test {
         assert_eq!(ceil(8, 2), 4);
         assert_eq!(ceil(10000, 2), 5000);
         assert_eq!(ceil(10001, 2), 5001);
+
+        assert_eq!(ceil(10001usize, 2usize), 5001);
+        assert_eq!(ceil(10001i128, 2i128), 5001);
+        assert_eq!(ceil(10001u128, 2u128), 5001);
     }
 
     proptest! {
