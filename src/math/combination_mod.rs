@@ -89,11 +89,22 @@ pub fn permutation_mod<
 
 #[snippet("@factorial_mod")]
 #[snippet("@prime_combination_mod")]
-pub fn factorial_mod(n: usize, modulo: usize) -> usize {
+pub fn factorial_mod<
+    T: num::Unsigned
+        + num::ToPrimitive
+        + num::FromPrimitive
+        + std::ops::MulAssign<T>
+        + std::ops::RemAssign<T>
+        + Copy,
+>(
+    n: T,
+    modulo: T,
+) -> T {
     // n!
-    let mut element = 1;
-    for j in 1..(n + 1) {
-        element *= j;
+    let mut element: T = num::one();
+    let len = (n + num::one()).to_usize().unwrap();
+    for j in 1..len {
+        element *= T::from_usize(j).unwrap();
         element %= modulo;
     }
 
