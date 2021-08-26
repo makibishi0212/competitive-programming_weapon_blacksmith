@@ -4,13 +4,23 @@ use cargo_snippet::snippet;
 #[snippet("@power_mod")]
 #[snippet("@prime_inverse_mod")]
 #[snippet("@prime_combination_mod")]
-pub fn power_mod(base: usize, exp: usize, modulo: usize) -> usize {
-    if exp == 0 {
-        return 1;
-    } else if exp & 1 == 0 {
-        return (power_mod(base, exp / 2, modulo) % modulo).pow(2) % modulo;
+pub fn power_mod<
+    T: num::Unsigned + std::ops::BitAnd<Output = T> + std::ops::Shl<Output = T> + Copy,
+>(
+    base: T,
+    exp: T,
+    modulo: T,
+) -> T {
+    let one: T = num::one();
+    let two: T = one + one;
+
+    if exp == num::zero() {
+        return num::one();
+    } else if exp & one == num::zero() {
+        let base = power_mod(base, exp / two, modulo) % modulo;
+        return (base * base) % modulo;
     } else {
-        return power_mod(base, exp - 1, modulo) % modulo * base % modulo;
+        return power_mod(base, exp - one, modulo) % modulo * base % modulo;
     }
 }
 
