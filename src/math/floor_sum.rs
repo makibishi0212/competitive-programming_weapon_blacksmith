@@ -2,12 +2,21 @@ use cargo_snippet::snippet;
 
 // floor_sum Σ_{0}^{n-1} floor((a*i+b)/m) を計算する。
 #[snippet("@floor_sum")]
-pub fn floor_sum(n: i64, m: i64, mut a: i64, mut b: i64) -> i64 {
-    let mut ans = 0;
+pub fn floor_sum<
+    T: Copy + num::Signed + std::cmp::Ord + std::ops::RemAssign + std::ops::AddAssign,
+>(
+    n: T,
+    m: T,
+    mut a: T,
+    mut b: T,
+) -> T {
+    let mut ans = num::zero();
+    let one: T = num::one();
+    let two: T = one + one;
 
     if a >= m {
         let q_a = a / m;
-        ans += n * (n - 1) * q_a / 2;
+        ans += n * (n - one) * q_a / two;
         a %= m;
     }
     if b >= m {
@@ -19,12 +28,12 @@ pub fn floor_sum(n: i64, m: i64, mut a: i64, mut b: i64) -> i64 {
     let y_max = (a * n + b) / m;
     let x_max = y_max * m - b;
 
-    if y_max == 0 {
+    if y_max == num::zero() {
         return ans;
     }
 
     // (x_max + a - 1) / a) はceil(x_max/a)
-    ans += (n - (x_max + a - 1) / a) * y_max;
+    ans += (n - (x_max + a - one) / a) * y_max;
     ans += floor_sum(y_max, a, m, (a - x_max % a) % a);
 
     ans
@@ -43,5 +52,8 @@ mod test {
         assert_eq!(floor_sum(100, 999999999, 999999999, 0), 4950);
         assert_eq!(floor_sum(100, 100, 10, 0), 450);
         assert_eq!(floor_sum(332955, 5590132, 2231, 999423), 22014575);
+
+        assert_eq!(floor_sum(332955isize, 5590132, 2231, 999423), 22014575);
+        assert_eq!(floor_sum(332955i128, 5590132, 2231, 999423), 22014575);
     }
 }
