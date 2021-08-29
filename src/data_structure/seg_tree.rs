@@ -348,12 +348,12 @@ mod test {
                 let v1_element = if v1_index < v1.len() {
                     v1[v1_index]
                 } else {
-                    usize::MAX
+                    std::usize::MAX
                 };
                 let v2_element = if v2_index < v2.len() {
                     v2[v2_index]
                 } else {
-                    usize::MAX
+                    std::usize::MAX
                 };
 
                 let max = if v1_element <= v2_element {

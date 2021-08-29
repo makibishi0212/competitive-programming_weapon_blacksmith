@@ -39,7 +39,7 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
 
     // 辺の削除 O(d(from)+d(to))
     pub fn remove_edge(&mut self, from: usize, to: usize) {
-        let mut remove_index = usize::MAX;
+        let mut remove_index = std::usize::MAX;
         self.edges[from]
             .iter()
             .enumerate()
@@ -48,7 +48,7 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
                     remove_index = index;
                 }
             });
-        if remove_index == usize::MAX {
+        if remove_index == std::usize::MAX {
             panic!();
         }
 
@@ -58,7 +58,7 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
             return;
         }
 
-        remove_index = usize::MAX;
+        remove_index = std::usize::MAX;
         self.edges[to]
             .iter()
             .enumerate()
@@ -67,7 +67,7 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
                     remove_index = index;
                 }
             });
-        if remove_index == usize::MAX {
+        if remove_index == std::usize::MAX {
             panic!();
         }
 
