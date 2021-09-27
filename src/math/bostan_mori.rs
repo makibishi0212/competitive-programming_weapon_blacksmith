@@ -2,7 +2,7 @@ use cargo_snippet::snippet;
 
 // https://ikatakos.com/pot/programming_algorithm/number_theory/barlekamp_massey
 // https://qiita.com/ryuhe1/items/da5acbcce4ac1911f47a
-
+#[snippet("@bostan_mori")]
 pub fn bostan_mori(zero_indexed_n: usize, coefficients: &[i128], initial_value: &[i128]) -> i128 {
     if coefficients.len() != initial_value.len() {
         panic!();

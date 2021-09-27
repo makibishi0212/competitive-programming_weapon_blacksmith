@@ -3,7 +3,7 @@ use cargo_snippet::snippet;
 // f(x+2) = f(x) + f(x+1) (フィボナッチ数列)のような線形漸化式について、f(n)を高速で求める。
 // f(x+k)の漸化式と、f(0)..f(x-1)の初期値を引数にとる。
 // n: 求めたい項
-// coefficients: f(x+k)の漸化式における、f(x+00)..f(x+k-1)の係数
+// coefficients: f(x+k)の漸化式における、f(x+0)..f(x+k-1)の係数
 // initial_value: f(k)の値を求めるために必要な、f(0)..f(k-1)の初期値。
 #[snippet("@kitamasa")]
 pub fn kitamasa<T: Copy + num::Integer + std::ops::AddAssign + num::CheckedMul>(
