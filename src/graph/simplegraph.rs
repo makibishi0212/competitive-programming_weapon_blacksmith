@@ -240,6 +240,44 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
         }
         groups
     }
+
+    pub fn euler_tour(&self, start: usize) -> Vec<usize> {
+        let mut visits = vec![];
+
+        let mut que = std::collections::VecDeque::new();
+        que.push_back(start);
+
+        let mut visited = vec![std::usize::MAX; self.size];
+        visited[start] = start;
+
+        while !que.is_empty() {
+            let v = que.pop_back().unwrap();
+            visits.push(v);
+
+            let dead_end = self.edges[v]
+                .iter()
+                .all(|e| visited[e.0] != std::usize::MAX);
+
+            if dead_end {
+                if v != start {
+                    que.push_back(visited[v]);
+                }
+
+                continue;
+            }
+
+            for i in 0..self.edges[v].len() {
+                let e = self.edges[v][i];
+                if visited[e.0] == std::usize::MAX {
+                    visited[e.0] = v;
+                    que.push_back(e.0);
+                    break;
+                }
+            }
+        }
+
+        visits
+    }
 }
 
 // 負辺を含まないグラフのためのメソッド
@@ -612,5 +650,31 @@ mod test {
         self_loop_graph.add_edge(0, 0, 1);
         let scc = self_loop_graph.scc();
         assert_eq!(scc, vec![vec![4], vec![3], vec![2], vec![1], vec![0]]);
+    }
+
+    #[test]
+    fn euler_tour_test() {
+        let mut graph = SimpleGraph::<usize>::new(7, false);
+        graph.add_edge(1, 2, 1);
+        graph.add_edge(2, 3, 1);
+        graph.add_edge(3, 4, 1);
+        graph.add_edge(2, 5, 1);
+        graph.add_edge(1, 6, 1);
+
+        assert_eq!(graph.euler_tour(1), vec![1, 2, 3, 4, 3, 2, 5, 2, 1, 6, 1]);
+
+        let mut graph = SimpleGraph::<usize>::new(4, true);
+        graph.add_edge(0, 1, 1);
+        graph.add_edge(1, 2, 1);
+        graph.add_edge(2, 3, 1);
+        graph.add_edge(3, 0, 1);
+        assert_eq!(graph.euler_tour(0), vec![0, 1, 2, 3, 2, 1, 0]);
+
+        let mut graph = SimpleGraph::<usize>::new(4, true);
+        graph.add_edge(0, 1, 1);
+        graph.add_edge(1, 2, 1);
+        graph.add_edge(2, 0, 1);
+        graph.add_edge(0, 3, 1);
+        assert_eq!(graph.euler_tour(0), vec![0, 1, 2, 1, 0, 3, 0]);
     }
 }
