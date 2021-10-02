@@ -1,3 +1,5 @@
+use std::cmp::Reverse;
+
 use cargo_snippet::snippet;
 
 // 多重辺を含むグラフ。頂点は0-indexed。自己ループ辺もok
@@ -282,12 +284,13 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
 
 // 負辺を含まないグラフのためのメソッド
 #[snippet("@SimpleGraph")]
-impl SimpleGraph<usize> {
+impl<T: Copy + num::Unsigned + num::Bounded + num::Saturating + std::cmp::Ord> SimpleGraph<T> {
     // Dijkstraで1対nの最小距離を求める(vec[from]は自己ループ辺のコストになる) usize::MAXを超えるものはusize::MAXとして扱う
-    pub fn min_dists(&self, from: usize) -> Vec<usize> {
-        let mut from_to_n = vec![std::usize::MAX; self.size];
-        let mut queue = std::collections::BinaryHeap::new();
-        queue.push(std::cmp::Reverse((0, from)));
+    pub fn min_dists(&self, from: usize) -> Vec<T> {
+        let mut from_to_n = vec![T::max_value(); self.size];
+        let mut queue: std::collections::BinaryHeap<Reverse<(T, usize)>> =
+            std::collections::BinaryHeap::new();
+        queue.push(std::cmp::Reverse((T::zero(), from)));
 
         while !queue.is_empty() {
             let (cost, to) = queue.pop().unwrap().0;
@@ -307,49 +310,57 @@ impl SimpleGraph<usize> {
         from_to_n
     }
 
-    pub fn all_min_dists(&self) -> Vec<Vec<usize>> {
+    pub fn all_min_dists(&self) -> Vec<Vec<T>> {
         (0..self.size).map(|node| self.min_dists(node)).collect()
     }
 }
 
 // 負辺を含むグラフのためのメソッド
 #[snippet("@SimpleGraph")]
-impl SimpleGraph<i64> {
+impl<T: Copy + num::Signed + num::Bounded + std::ops::AddAssign + std::cmp::Ord> SimpleGraph<T> {
     // Bellman-Ford法で1対nの最小距離を求める。負閉路を検出した場合はNone
     // このメソッドでは自己ループ辺を無視する。
-    pub fn min_dists(&self, from: usize) -> Option<Vec<i64>> {
-        let mut from_to_n = vec![std::i64::MAX; self.size];
-        from_to_n[from] = 0;
+    pub fn min_dists_or_detect_negative_loop(&self, from: usize) -> Option<Vec<T>> {
+        let mut from_to_n = vec![T::max_value(); self.size];
+        from_to_n[from] = T::zero();
         for _ in 0..self.size {
             self.edges.iter().enumerate().for_each(|(from_v, v_edges)| {
                 v_edges.iter().for_each(|&(to_v, cost)| {
-                    if from_to_n[from_v] != std::i64::MAX {
+                    if from_to_n[from_v] != T::max_value() {
                         from_to_n[to_v] = std::cmp::min(from_to_n[to_v], from_to_n[from_v] + cost);
                     }
                 });
             });
         }
 
-        let dist_total_before: i64 = from_to_n
+        let mut dist_total_before: T = T::zero();
+
+        from_to_n
             .iter()
-            .filter(|&&dist| dist != std::i64::MAX)
+            .filter(|&&dist| dist != T::max_value())
             .map(|dist| *dist)
-            .sum();
+            .for_each(|x| {
+                dist_total_before += x;
+            });
 
         // もう一周行う
         self.edges.iter().enumerate().for_each(|(from_v, v_edges)| {
             v_edges.iter().for_each(|&(to_v, cost)| {
-                if from_to_n[from_v] != std::i64::MAX {
+                if from_to_n[from_v] != T::max_value() {
                     from_to_n[to_v] = std::cmp::min(from_to_n[to_v], from_to_n[from_v] + cost);
                 }
             });
         });
 
-        let dist_total_after: i64 = from_to_n
+        let mut dist_total_after: T = T::zero();
+
+        from_to_n
             .iter()
-            .filter(|&&dist| dist != std::i64::MAX)
+            .filter(|&&dist| dist != T::max_value())
             .map(|dist| *dist)
-            .sum();
+            .for_each(|x| {
+                dist_total_after += x;
+            });
 
         if dist_total_before != dist_total_after {
             None
@@ -549,7 +560,10 @@ mod test {
         graph.add_edge(0, 3, 40);
         graph.add_edge(3, 4, 9000);
 
-        assert_eq!(graph.min_dists(0), Some(vec![0, 90, 150, 40, 9040]));
+        assert_eq!(
+            graph.min_dists_or_detect_negative_loop(0),
+            Some(vec![0, 90, 150, 40, 9040])
+        );
     }
 
     #[test]
@@ -562,7 +576,10 @@ mod test {
         graph.add_edge(0, 3, 40);
         graph.add_edge(3, 4, 9000);
 
-        assert_eq!(graph.min_dists(0), Some(vec![0, -50, 130, 40, 9040]));
+        assert_eq!(
+            graph.min_dists_or_detect_negative_loop(0),
+            Some(vec![0, -50, 130, 40, 9040])
+        );
     }
 
     #[test]
@@ -572,7 +589,7 @@ mod test {
         graph.add_edge(1, 0, 69);
         graph.add_edge(0, 2, 200);
 
-        assert_eq!(graph.min_dists(0), None);
+        assert_eq!(graph.min_dists_or_detect_negative_loop(0), None);
     }
 
     #[test]
