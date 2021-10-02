@@ -11,12 +11,12 @@ pub fn power_mod<
     exp: T,
     modulo: T,
 ) -> T {
-    let one: T = num::one();
+    let one: T = T::one();
     let two: T = one + one;
 
-    if exp == num::zero() {
-        return num::one();
-    } else if exp & one == num::zero() {
+    if exp == T::zero() {
+        return T::one();
+    } else if exp & one == T::zero() {
         let base = power_mod(base, exp / two, modulo) % modulo;
         return (base * base) % modulo;
     } else {
@@ -35,7 +35,7 @@ pub fn prime_inverse_mod<
 ) -> T {
     // フェルマーの小定理からpが素数なら a^(p-1) = 1
     // よってa*a^(p-2) = 1 より a^(p-2)がaの逆元
-    let one: T = num::one();
+    let one: T = T::one();
     let two: T = one + one;
     power_mod(element, prime_modulo - two, prime_modulo) % prime_modulo
 }
@@ -48,14 +48,14 @@ pub fn inverse_mod<
     element: T,
     modulo: T,
 ) -> T {
-    let one: T = num::one();
+    let one: T = T::one();
     assert!(one <= modulo);
     let i_element = element.to_isize().unwrap();
     let i_modulo = modulo.to_isize().unwrap();
     let (x, _) = extgcd(i_element, i_modulo);
     let ans = (x + i_modulo) % i_modulo;
     let ans = T::from_isize(ans).unwrap();
-    assert!((ans * element) % modulo == num::one()); // ansが逆数になっていないならエラー
+    assert!((ans * element) % modulo == T::one()); // ansが逆数になっていないならエラー
     ans
 }
 
@@ -75,7 +75,7 @@ pub fn permutation_mod<
 ) -> T {
     // m P n = m! / (m - n)!
     //       = m*(m-1)*(m-2)*...*(m-n+1)
-    let mut numerator: T = num::one();
+    let mut numerator: T = T::one();
     let len = n.to_usize().unwrap();
     for i in 0..len {
         numerator *= m - T::from_usize(i).unwrap();
@@ -99,8 +99,8 @@ pub fn factorial_mod<
     modulo: T,
 ) -> T {
     // n!
-    let mut element: T = num::one();
-    let len = (n + num::one()).to_usize().unwrap();
+    let mut element: T = T::one();
+    let len = (n + T::one()).to_usize().unwrap();
     for j in 1..len {
         element *= T::from_usize(j).unwrap();
         element %= modulo;
@@ -130,8 +130,8 @@ pub fn prime_combination_mod<
     let permutation = permutation_mod(m, n, prime_modulo);
 
     // n!
-    let mut element: T = num::one();
-    let len = (n + num::one()).to_usize().unwrap();
+    let mut element: T = T::one();
+    let len = (n + T::one()).to_usize().unwrap();
     for j in 1..len {
         element *= T::from_usize(j).unwrap();
         element %= prime_modulo;

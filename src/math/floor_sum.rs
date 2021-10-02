@@ -10,8 +10,8 @@ pub fn floor_sum<
     mut a: T,
     mut b: T,
 ) -> T {
-    let mut ans = num::zero();
-    let one: T = num::one();
+    let mut ans = T::zero();
+    let one: T = T::one();
     let two: T = one + one;
 
     if a >= m {
@@ -28,7 +28,7 @@ pub fn floor_sum<
     let y_max = (a * n + b) / m;
     let x_max = y_max * m - b;
 
-    if y_max == num::zero() {
+    if y_max == T::zero() {
         return ans;
     }
 

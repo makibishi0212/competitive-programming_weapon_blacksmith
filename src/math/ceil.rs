@@ -2,7 +2,7 @@ use cargo_snippet::snippet;
 
 #[snippet("@ceil")]
 pub fn ceil<T: num::Integer + Copy>(top: T, bottom: T) -> T {
-    (top + bottom - num::one()) / bottom
+    (top + bottom - T::one()) / bottom
 }
 
 mod test {

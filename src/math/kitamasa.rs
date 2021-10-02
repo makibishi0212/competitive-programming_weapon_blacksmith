@@ -41,7 +41,7 @@ pub fn kitamasa<T: Copy + num::Integer + std::ops::AddAssign + num::CheckedMul>(
         initial_coefficients: &[T],
     ) -> Vec<T> {
         let k = n_coefficients.len();
-        let mut new_n_coefficients = vec![num::zero(); k];
+        let mut new_n_coefficients = vec![T::zero(); k];
         for i in 0..k {
             if i == 0 {
                 new_n_coefficients[i] = n_coefficients[k - 1] * initial_coefficients[0];
@@ -59,7 +59,7 @@ pub fn kitamasa<T: Copy + num::Integer + std::ops::AddAssign + num::CheckedMul>(
 
         match next {
             0 => {
-                let mut new_n_coefficients = vec![num::zero(); k];
+                let mut new_n_coefficients = vec![T::zero(); k];
 
                 let mut tmp_n_coefficients = n_coefficients.clone();
                 for j in 0..k {
@@ -80,7 +80,7 @@ pub fn kitamasa<T: Copy + num::Integer + std::ops::AddAssign + num::CheckedMul>(
         }
     }
 
-    let mut value = num::zero();
+    let mut value = T::zero();
     for i in 0..k {
         value += n_coefficients[i] * initial_value[i];
     }

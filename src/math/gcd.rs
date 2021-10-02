@@ -24,8 +24,8 @@ pub fn lcm(a: usize, b: usize) -> usize {
 #[snippet("@extgcd")]
 #[snippet("@inverse_mod")]
 pub fn extgcd<T: num::Num + Copy>(a: T, b: T) -> (T, T) {
-    if b == num::zero() {
-        return (num::one(), num::zero());
+    if b == T::zero() {
+        return (T::one(), T::zero());
     }
 
     let d = extgcd(b, a % b);
