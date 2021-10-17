@@ -1,5 +1,3 @@
-use std::cmp::Reverse;
-
 use cargo_snippet::snippet;
 
 // 多重辺を含むグラフ。頂点は0-indexed。自己ループ辺もok
@@ -288,7 +286,7 @@ impl<T: Copy + num::Unsigned + num::Bounded + num::Saturating + std::cmp::Ord> S
     // Dijkstraで1対nの最小距離を求める(vec[from]は自己ループ辺のコストになる) usize::MAXを超えるものはusize::MAXとして扱う
     pub fn min_dists(&self, from: usize) -> Vec<T> {
         let mut from_to_n = vec![T::max_value(); self.size];
-        let mut queue: std::collections::BinaryHeap<Reverse<(T, usize)>> =
+        let mut queue: std::collections::BinaryHeap<std::cmp::Reverse<(T, usize)>> =
             std::collections::BinaryHeap::new();
         queue.push(std::cmp::Reverse((T::zero(), from)));
 

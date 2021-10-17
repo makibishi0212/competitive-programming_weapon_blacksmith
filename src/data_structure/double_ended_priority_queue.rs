@@ -46,28 +46,6 @@ impl<T: Ord + Copy> DEPQ<T> {
         self.max_queue.peek()
     }
 
-    fn internal_pop_min(&mut self) {
-        while self.min_queue.peek() == self.min_queue_delete.peek()
-            && self.min_queue.peek().is_some()
-        {
-            self.min_queue.pop();
-            self.min_queue_delete.pop();
-        }
-
-        self.min_queue.pop();
-    }
-
-    fn internal_pop_max(&mut self) {
-        while self.max_queue.peek() == self.max_queue_delete.peek()
-            && self.max_queue.peek().is_some()
-        {
-            self.max_queue.pop();
-            self.max_queue_delete.pop();
-        }
-
-        self.max_queue.pop();
-    }
-
     pub fn peek_min(&mut self) -> Option<&T> {
         let peek = self.internal_peek_min();
 
@@ -91,7 +69,7 @@ impl<T: Ord + Copy> DEPQ<T> {
         let std::cmp::Reverse(min_top) = *min_top.unwrap();
 
         self.max_queue_delete.push(min_top);
-        self.internal_pop_min();
+        self.min_queue.pop();
 
         Some(min_top)
     }
@@ -105,7 +83,7 @@ impl<T: Ord + Copy> DEPQ<T> {
         let max_top = *max_top.unwrap();
 
         self.min_queue_delete.push(std::cmp::Reverse(max_top));
-        self.internal_pop_max();
+        self.max_queue.pop();
 
         Some(max_top)
     }
