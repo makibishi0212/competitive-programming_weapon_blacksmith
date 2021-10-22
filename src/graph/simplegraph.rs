@@ -278,6 +278,49 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
 
         visits
     }
+
+    pub fn is_tree(&self) -> bool {
+        if self.directed {
+            return false;
+        }
+
+        if self.size == 0 {
+            return true;
+        }
+
+        let mut que = std::collections::VecDeque::new();
+        que.push_back((0usize, 0usize));
+
+        let mut visited = vec![false; self.size];
+
+        let mut is_tree = true;
+
+        while !que.is_empty() {
+            let (now, before) = que.pop_back().unwrap();
+            if visited[now] {
+                is_tree = false;
+                break;
+            } else {
+                visited[now] = true;
+            }
+
+            self.edges[now].iter().for_each(|&(to, _)| {
+                if to != before {
+                    que.push_back((to, now));
+                }
+            });
+        }
+
+        if !is_tree {
+            return false;
+        }
+
+        is_tree = visited.iter().all(|&visited_node| {
+            return visited_node;
+        });
+
+        return is_tree;
+    }
 }
 
 // 負辺を含まないグラフのためのメソッド
@@ -370,6 +413,8 @@ impl<T: Copy + num::Signed + num::Bounded + std::ops::AddAssign + std::cmp::Ord>
 
 mod test {
     use super::*;
+    use proptest::prelude::*;
+    use rand::prelude::*;
 
     #[test]
     fn add_edge_directed_graph_test() {
@@ -691,5 +736,46 @@ mod test {
         graph.add_edge(2, 0, 1);
         graph.add_edge(0, 3, 1);
         assert_eq!(graph.euler_tour(0), vec![0, 1, 2, 1, 0, 3, 0]);
+    }
+
+    #[test]
+    fn is_tree_test() {
+        let mut graph = SimpleGraph::<usize>::new(5, false);
+        graph.add_edge(0, 1, 1);
+        graph.add_edge(1, 2, 1);
+        graph.add_edge(1, 3, 1);
+        graph.add_edge(3, 4, 1);
+
+        assert_eq!(graph.is_tree(), true);
+
+        let mut graph = SimpleGraph::<usize>::new(6, false);
+        graph.add_edge(0, 1, 1);
+        graph.add_edge(1, 2, 1);
+        graph.add_edge(1, 3, 1);
+        graph.add_edge(3, 4, 1);
+
+        assert_eq!(graph.is_tree(), false);
+
+        let mut graph = SimpleGraph::<usize>::new(3, false);
+        graph.add_edge(0, 1, 1);
+        graph.add_edge(1, 2, 1);
+        graph.add_edge(2, 0, 1);
+
+        assert_eq!(graph.is_tree(), false);
+    }
+
+    proptest! {
+        #[test]
+        fn is_tree_random_test(graph_size :u8) {
+            let graph_size=graph_size as usize;
+
+            let mut graph = SimpleGraph::new(graph_size,false);
+            for i in 1..graph_size {
+                let mut from:usize = random();
+                from%= i;
+                graph.add_edge(from, i, 1);
+            }
+            assert_eq!(graph.is_tree(), true);
+        }
     }
 }
