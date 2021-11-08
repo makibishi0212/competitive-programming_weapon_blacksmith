@@ -16,4 +16,5 @@ pub mod data_structure;
 pub mod graph;
 pub mod math;
 pub mod power;
+pub mod stats;
 pub mod string;
