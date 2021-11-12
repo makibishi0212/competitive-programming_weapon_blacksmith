@@ -18,3 +18,4 @@ pub mod math;
 pub mod power;
 pub mod stats;
 pub mod string;
+pub mod util;
