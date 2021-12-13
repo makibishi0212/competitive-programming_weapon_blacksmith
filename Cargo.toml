@@ -1,5 +1,5 @@
 [package]
-name = "competitive-programming_weapon_blacksmith"
+name = "ninja_tools"
 version = "0.1.0"
 authors = ["makibishi <makibishi0212@gmail.com>"]
 edition = "2018"
@@ -12,5 +12,14 @@ rand = "0.7.3"
 num="0.2.1"
 proptest = "0.10.1"
 
+[dev-dependencies]
+criterion = "0.3.5"
+
+[[bench]]
+name = "benchmark"
+harness = false
+
 [lib]
 doctest = false
+name = "ninja_tools"
+path = "src/lib.rs"

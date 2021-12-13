@@ -1,5 +1,6 @@
 use cargo_snippet::snippet;
 
+// double_ended_priority_queue
 #[snippet("@DEPQ")]
 pub struct DEPQ<T: Ord> {
     min_queue: std::collections::BinaryHeap<std::cmp::Reverse<T>>,
