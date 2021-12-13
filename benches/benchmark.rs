@@ -8,7 +8,7 @@ fn bit_bench(c: &mut Criterion) {
             let mut bit = BIT::new(vec![1; 1000000]);
             for i in 0..1000000 {
                 bit.add(i, 1);
-                bit.query(i, 1000000);
+                bit.query(black_box(i), 1000000);
             }
         })
     });
