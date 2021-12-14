@@ -76,6 +76,224 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> Graph<T> {
 
         result
     }
+
+    /// return pair of (# of scc, scc id)
+    fn scc_ids(&self) -> (usize, Vec<usize>) {
+        // Compressed sparse row?
+        pub struct Csr {
+            start: Vec<usize>,
+            elist: Vec<usize>,
+        }
+
+        impl Csr {
+            pub fn new(n: usize, edges: &Vec<Vec<usize>>) -> Self {
+                let mut e_count = 0;
+                edges.iter().for_each(|edges_f| {
+                    e_count += edges_f.len();
+                });
+
+                let mut csr = Csr {
+                    start: vec![0; n + 1],
+                    elist: vec![0; e_count],
+                };
+                for i in 0..edges.len() {
+                    let from = i;
+                    let edges_f = &edges[from];
+                    for _ in edges_f.iter() {
+                        csr.start[from + 1] += 1;
+                    }
+                }
+
+                for i in 1..=n {
+                    csr.start[i] += csr.start[i - 1];
+                }
+
+                let mut counter = csr.start.clone();
+                for i in 0..edges.len() {
+                    let edges_f = &edges[i];
+                    let from = i;
+                    for to in edges_f.iter() {
+                        csr.elist[counter[from]] = *to;
+                        counter[from] += 1;
+                    }
+                }
+
+                csr
+            }
+        }
+
+        struct _Env {
+            graph: Csr,
+            now_ord: usize,
+            group_num: usize,
+            visited: Vec<usize>,
+            low: Vec<usize>,
+            ord: Vec<Option<usize>>,
+            ids: Vec<usize>,
+        }
+
+        // pure_edges[from] = [to1,to2,to3]
+        let mut pure_edges: Vec<Vec<usize>> = vec![vec![]; self.size];
+        self.edges.iter().for_each(|&(from, to, _)| {
+            pure_edges[from].push(to);
+        });
+
+        let mut env = _Env {
+            graph: Csr::new(self.size, &pure_edges),
+            now_ord: 0,
+            group_num: 0,
+            visited: Vec::with_capacity(self.size),
+            low: vec![0; self.size],
+            ord: vec![None; self.size],
+            ids: vec![0; self.size],
+        };
+
+        fn dfs(v: usize, n: usize, env: &mut _Env) {
+            env.low[v] = env.now_ord;
+            env.ord[v] = Some(env.now_ord);
+            env.now_ord += 1;
+            env.visited.push(v);
+
+            for i in env.graph.start[v]..env.graph.start[v + 1] {
+                let to = env.graph.elist[i];
+                if let Some(x) = env.ord[to] {
+                    env.low[v] = std::cmp::min(env.low[v], x);
+                } else {
+                    dfs(to, n, env);
+                    env.low[v] = std::cmp::min(env.low[v], env.low[to]);
+                }
+            }
+            if env.low[v] == env.ord[v].unwrap() {
+                loop {
+                    let u = *env.visited.last().unwrap();
+                    env.visited.pop();
+                    env.ord[u] = Some(n);
+                    env.ids[u] = env.group_num;
+                    if u == v {
+                        break;
+                    }
+                }
+                env.group_num += 1;
+            }
+        }
+        for i in 0..self.size {
+            if env.ord[i].is_none() {
+                dfs(i, self.size, &mut env);
+            }
+        }
+        for x in env.ids.iter_mut() {
+            *x = env.group_num - 1 - *x;
+        }
+        (env.group_num, env.ids)
+    }
+
+    pub fn scc(&self) -> Vec<Vec<usize>> {
+        let ids = self.scc_ids();
+        let group_num = ids.0;
+        let mut counts = vec![0usize; group_num];
+        for &x in ids.1.iter() {
+            counts[x] += 1;
+        }
+        let mut groups: Vec<Vec<usize>> = (0..ids.0).map(|_| vec![]).collect();
+        for i in 0..group_num {
+            groups[i].reserve(counts[i]);
+        }
+        for i in 0..self.size {
+            groups[ids.1[i]].push(i);
+        }
+        groups
+    }
+
+    pub fn euler_tour(&self, start: usize) -> Vec<usize> {
+        let mut visits = vec![];
+
+        let mut que = std::collections::VecDeque::new();
+        que.push_back(start);
+
+        let mut visited = vec![std::usize::MAX; self.size];
+        visited[start] = start;
+
+        let mut edges_from = vec![vec![]; self.size];
+        self.edges.iter().for_each(|&(from, to, cost)| {
+            edges_from[from].push((to, cost));
+        });
+
+        while !que.is_empty() {
+            let v = que.pop_back().unwrap();
+            visits.push(v);
+
+            let dead_end = edges_from[v]
+                .iter()
+                .all(|e| visited[e.0] != std::usize::MAX);
+
+            if dead_end {
+                if v != start {
+                    que.push_back(visited[v]);
+                }
+
+                continue;
+            }
+
+            for i in 0..edges_from[v].len() {
+                let e = edges_from[v][i];
+                if visited[e.0] == std::usize::MAX {
+                    visited[e.0] = v;
+                    que.push_back(e.0);
+                    break;
+                }
+            }
+        }
+
+        visits
+    }
+
+    pub fn is_tree(&self) -> bool {
+        if self.directed {
+            return false;
+        }
+
+        if self.size == 0 {
+            return true;
+        }
+
+        let mut que = std::collections::VecDeque::new();
+        que.push_back((0usize, 0usize));
+
+        let mut visited = vec![false; self.size];
+
+        let mut is_tree = true;
+
+        let mut edges_from = vec![vec![]; self.size];
+        self.edges.iter().for_each(|&(from, to, cost)| {
+            edges_from[from].push((to, cost));
+        });
+
+        while !que.is_empty() {
+            let (now, before) = que.pop_back().unwrap();
+            if visited[now] {
+                is_tree = false;
+                break;
+            } else {
+                visited[now] = true;
+            }
+
+            edges_from[now].iter().for_each(|&(to, _)| {
+                if to != before {
+                    que.push_back((to, now));
+                }
+            });
+        }
+
+        if !is_tree {
+            return false;
+        }
+
+        is_tree = visited.iter().all(|&visited_node| {
+            return visited_node;
+        });
+
+        return is_tree;
+    }
 }
 
 // 負辺を含まないグラフのためのメソッド
@@ -403,7 +621,6 @@ mod test {
         assert_eq!(graph.topological_sort(), vec![0, 3, 1, 2]);
     }
 
-    /*
     #[test]
     fn scc_test() {
         let mut graph = Graph::<usize>::new(8, false);
@@ -501,5 +718,4 @@ mod test {
             assert_eq!(graph.is_tree(), true);
         }
     }
-    */
 }
