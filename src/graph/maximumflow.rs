@@ -1,15 +1,19 @@
 // 未実装
 use cargo_snippet::snippet;
 
+#[snippet("@MaximumFlow")]
 struct MaximumFlow {
     graph: Vec<Vec<Edge>>,
 }
 
+#[snippet("@MaximumFlow")]
 struct Edge {
     to: usize,
     to_edge_index: usize,
     capacity: i128,
 }
+
+#[snippet("@MaximumFlow")]
 
 // Dinic法
 impl MaximumFlow {

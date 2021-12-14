@@ -3,4 +3,4 @@ pub mod DEPQ;
 pub mod LazySegTree;
 pub mod SegTree;
 pub mod SparseTable;
-pub mod unionfind;
+pub mod UnionFind;

@@ -1,4 +1,4 @@
 pub mod Graph;
+pub mod MaximumFlow;
 pub mod SimpleGraph;
-pub mod maximumflow;
 pub mod toporogical_sort;

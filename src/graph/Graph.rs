@@ -1,3 +1,6 @@
+use std::fmt::Debug;
+
+use crate::data_structure::UnionFind::UnionFind;
 use cargo_snippet::snippet;
 
 pub struct Graph<T> {
@@ -330,6 +333,27 @@ impl<T: Copy + num::Unsigned + num::Bounded + num::Saturating + std::cmp::Ord> G
 
     pub fn all_min_dists(&self) -> Vec<Vec<T>> {
         (0..self.size).map(|node| self.min_dists(node)).collect()
+    }
+
+    pub fn mst(&self) -> Vec<usize> {
+        let mut sorted_edges = vec![];
+        self.edges
+            .iter()
+            .enumerate()
+            .for_each(|(e_index, &(from, to, cost))| sorted_edges.push((cost, from, to, e_index)));
+        sorted_edges.sort();
+
+        let mut uf = UnionFind::new(self.size);
+        let mut adopt_edge_indexes = vec![];
+
+        sorted_edges.iter().for_each(|&(_, from, to, e_index)| {
+            if !uf.same(from, to) {
+                uf.unite(from, to);
+                adopt_edge_indexes.push(e_index);
+            }
+        });
+
+        adopt_edge_indexes
     }
 }
 
@@ -717,5 +741,20 @@ mod test {
             }
             assert_eq!(graph.is_tree(), true);
         }
+    }
+
+    #[test]
+    fn mst_test() {
+        let mut graph = Graph::<usize>::new(5, true);
+        graph.add_edge(0, 1, 5);
+        graph.add_edge(1, 2, 1);
+        graph.add_edge(2, 3, 5);
+        graph.add_edge(3, 4, 1);
+        graph.add_edge(0, 1, 1);
+        graph.add_edge(1, 2, 5);
+        graph.add_edge(2, 3, 1);
+        graph.add_edge(3, 4, 5);
+
+        assert_eq!(graph.mst(), vec![4, 1, 6, 3]);
     }
 }

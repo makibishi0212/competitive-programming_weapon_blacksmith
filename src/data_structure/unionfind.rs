@@ -1,6 +1,7 @@
 use cargo_snippet::snippet;
 
 #[snippet("@UnionFind")]
+#[snippet("@Graph")]
 pub struct UnionFind {
     parent: Vec<usize>,
     rank: Vec<usize>,
@@ -8,6 +9,7 @@ pub struct UnionFind {
 }
 
 #[snippet("@UnionFind")]
+#[snippet("@Graph")]
 impl UnionFind {
     pub fn new(n: usize) -> UnionFind {
         UnionFind {
