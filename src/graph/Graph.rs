@@ -3,12 +3,14 @@ use std::fmt::Debug;
 use crate::data_structure::UnionFind::UnionFind;
 use cargo_snippet::snippet;
 
+#[snippet("@Graph")]
 pub struct Graph<T> {
     size: usize,
     edges: Vec<(usize, usize, T)>,
     directed: bool,
 }
 
+#[snippet("@Graph")]
 impl<T: std::marker::Copy + std::cmp::PartialOrd> Graph<T> {
     // directed: 有向グラフにするかどうか
     pub fn new(n: usize, directed: bool) -> Graph<T> {
@@ -299,6 +301,7 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> Graph<T> {
     }
 }
 
+#[snippet("@Graph")]
 // 負辺を含まないグラフのためのメソッド
 impl<T: Copy + num::Unsigned + num::Bounded + num::Saturating + std::cmp::Ord> Graph<T> {
     // Dijkstraで1対nの最小距離を求める(vec[from]は自己ループ辺のコストになる) usize::MAXを超えるものはusize::MAXとして扱う
@@ -357,6 +360,7 @@ impl<T: Copy + num::Unsigned + num::Bounded + num::Saturating + std::cmp::Ord> G
     }
 }
 
+#[snippet("@Graph")]
 // 負辺を含むグラフのためのメソッド
 impl<T: Copy + num::Signed + num::Bounded + std::ops::AddAssign + std::cmp::Ord> Graph<T> {
     // Bellman-Ford法で1対nの最小距離を求める。負閉路を検出した場合はNone
