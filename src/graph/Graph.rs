@@ -31,7 +31,136 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> Graph<T> {
 
         // 無向グラフなら、反対にも辺を張る
         if !self.directed {
-            self.edges.push((from, to, cost));
+            self.edges.push((to, from, cost));
+        }
+    }
+
+    // 頂点のトポロジカルソート
+    pub fn topological_sort(&self) -> Vec<usize> {
+        let mut result = vec![];
+        let mut isolated = std::collections::VecDeque::new();
+
+        // deg[x] = a -> x, b -> xのような辺の数
+        let mut degs = vec![0; self.size];
+
+        let isolate_deg = if self.directed { 0 } else { 1 };
+
+        self.edges.iter().for_each(|&(from, to, cost)| {
+            // 多重辺は無視
+            if from != to {
+                degs[to] += 1;
+            }
+        });
+
+        degs.iter().enumerate().for_each(|(index, &deg)| {
+            if deg == isolate_deg {
+                isolated.push_front(index);
+            }
+        });
+
+        let mut edges_from = vec![vec![]; self.size];
+        self.edges.iter().for_each(|&(from, to, cost)| {
+            edges_from[from].push((to, cost));
+        });
+
+        while isolated.len() != 0 {
+            let next = isolated.pop_back().unwrap();
+            result.push(next);
+            for &(to, _) in &edges_from[next] {
+                degs[to] -= 1;
+                if degs[to] == isolate_deg {
+                    isolated.push_front(to);
+                }
+            }
+        }
+
+        result
+    }
+}
+
+// 負辺を含まないグラフのためのメソッド
+impl<T: Copy + num::Unsigned + num::Bounded + num::Saturating + std::cmp::Ord> Graph<T> {
+    // Dijkstraで1対nの最小距離を求める(vec[from]は自己ループ辺のコストになる) usize::MAXを超えるものはusize::MAXとして扱う
+    pub fn min_dists(&self, from: usize) -> Vec<T> {
+        let mut from_to_n = vec![T::max_value(); self.size];
+        let mut queue: std::collections::BinaryHeap<std::cmp::Reverse<(T, usize)>> =
+            std::collections::BinaryHeap::new();
+        queue.push(std::cmp::Reverse((T::zero(), from)));
+
+        let mut edges_from = vec![vec![]; self.size];
+        self.edges.iter().for_each(|&(from, to, cost)| {
+            edges_from[from].push((to, cost));
+        });
+
+        while !queue.is_empty() {
+            let (cost, to) = queue.pop().unwrap().0;
+            if from_to_n[to] < cost {
+                continue;
+            }
+
+            for &(to_to, to_cost) in &edges_from[to] {
+                let new_cost = cost.saturating_add(to_cost);
+                if from_to_n[to_to] > new_cost {
+                    from_to_n[to_to] = new_cost;
+                    queue.push(std::cmp::Reverse((new_cost, to_to)));
+                }
+            }
+        }
+
+        from_to_n
+    }
+
+    pub fn all_min_dists(&self) -> Vec<Vec<T>> {
+        (0..self.size).map(|node| self.min_dists(node)).collect()
+    }
+}
+
+// 負辺を含むグラフのためのメソッド
+impl<T: Copy + num::Signed + num::Bounded + std::ops::AddAssign + std::cmp::Ord> Graph<T> {
+    // Bellman-Ford法で1対nの最小距離を求める。負閉路を検出した場合はNone
+    // このメソッドでは自己ループ辺を無視する。
+    pub fn min_dists_or_detect_negative_loop(&self, from: usize) -> Option<Vec<T>> {
+        let mut from_to_n = vec![T::max_value(); self.size];
+        from_to_n[from] = T::zero();
+        for _ in 0..self.size {
+            self.edges.iter().for_each(|&(from, to, cost)| {
+                if from_to_n[from] != T::max_value() {
+                    from_to_n[to] = std::cmp::min(from_to_n[to], from_to_n[from] + cost);
+                }
+            });
+        }
+
+        let mut dist_total_before: T = T::zero();
+
+        from_to_n
+            .iter()
+            .filter(|&&dist| dist != T::max_value())
+            .map(|dist| *dist)
+            .for_each(|x| {
+                dist_total_before += x;
+            });
+
+        // もう一周行う
+        self.edges.iter().for_each(|&(from, to, cost)| {
+            if from_to_n[from] != T::max_value() {
+                from_to_n[to] = std::cmp::min(from_to_n[to], from_to_n[from] + cost);
+            }
+        });
+
+        let mut dist_total_after: T = T::zero();
+
+        from_to_n
+            .iter()
+            .filter(|&&dist| dist != T::max_value())
+            .map(|dist| *dist)
+            .for_each(|x| {
+                dist_total_after += x;
+            });
+
+        if dist_total_before != dist_total_after {
+            None
+        } else {
+            Some(from_to_n)
         }
     }
 }
@@ -56,21 +185,6 @@ mod test {
         assert_eq!(graph.adjacent_nodes(4), vec![]);
     }
 
-    /*
-    #[test]
-    fn remove_edge_directed_graph_test() {
-        let mut graph = Graph::<usize>::new(5, true);
-        graph.add_edge(1, 0, 1);
-        graph.add_edge(1, 2, 1);
-        graph.add_edge(1, 3, 1);
-        graph.add_edge(1, 4, 1);
-
-        graph.remove_edge(1, 0);
-        graph.remove_edge(1, 3);
-
-        assert_eq!(graph.adjacent_nodes(1), vec![2, 4]);
-    }
-
     #[test]
     fn add_edge_undirected_graph_test() {
         let mut graph = Graph::<usize>::new(5, false);
@@ -83,24 +197,6 @@ mod test {
         assert_eq!(graph.adjacent_nodes(0), vec![1]);
         assert_eq!(graph.adjacent_nodes(2), vec![1]);
         assert_eq!(graph.adjacent_nodes(3), vec![1]);
-        assert_eq!(graph.adjacent_nodes(4), vec![1]);
-    }
-
-    #[test]
-    fn remove_edge_undirected_graph_test() {
-        let mut graph = Graph::<usize>::new(5, false);
-        graph.add_edge(1, 0, 1);
-        graph.add_edge(1, 2, 1);
-        graph.add_edge(1, 3, 1);
-        graph.add_edge(1, 4, 1);
-
-        graph.remove_edge(1, 0);
-        graph.remove_edge(1, 3);
-
-        assert_eq!(graph.adjacent_nodes(1), vec![2, 4]);
-        assert_eq!(graph.adjacent_nodes(0), vec![]);
-        assert_eq!(graph.adjacent_nodes(2), vec![1]);
-        assert_eq!(graph.adjacent_nodes(3), vec![]);
         assert_eq!(graph.adjacent_nodes(4), vec![1]);
     }
 
@@ -307,6 +403,7 @@ mod test {
         assert_eq!(graph.topological_sort(), vec![0, 3, 1, 2]);
     }
 
+    /*
     #[test]
     fn scc_test() {
         let mut graph = Graph::<usize>::new(8, false);
