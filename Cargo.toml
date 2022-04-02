@@ -11,6 +11,8 @@ cargo-snippet = "0.6"
 rand = "0.7.3"
 num="0.2.1"
 proptest = "0.10.1"
+rand_chacha ="0.2.2"
+rand_pcg="0.2.1"
 
 [dev-dependencies]
 criterion = "0.3.5"
