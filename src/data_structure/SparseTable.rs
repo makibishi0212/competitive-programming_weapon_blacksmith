@@ -80,6 +80,7 @@ impl<T: std::clone::Clone + std::fmt::Debug> SparseTable<T> {
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
     use proptest::prelude::*;

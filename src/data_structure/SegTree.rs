@@ -153,6 +153,7 @@ impl<T: std::clone::Clone + std::fmt::Debug> std::fmt::Debug for SegTree<T> {
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
     use rand::Rng;
