@@ -14,6 +14,7 @@
 
 pub mod data_structure;
 pub mod graph;
+pub mod grid2d;
 pub mod math;
 pub mod power;
 pub mod stats;

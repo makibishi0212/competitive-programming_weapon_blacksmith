@@ -49,7 +49,7 @@ mod test {
     proptest! {
       #[test]
       fn next_prev(float_num :f64) {
-        let origin_deg = float_num % 90.0;
+        let origin_deg = float_num.floor() % 90.0;
         let origin_rad = origin_deg * std::f64::consts::PI / 180.0;
         let rad = two_point_radian((0.0, 0.0), (origin_rad.cos(), origin_rad.sin()));
         let deg = rad * 180.0 / std::f64::consts::PI;
