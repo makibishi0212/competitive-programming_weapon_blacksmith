@@ -50,7 +50,7 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> Graph<T> {
 
         let isolate_deg = if self.directed { 0 } else { 1 };
 
-        self.edges.iter().for_each(|&(from, to, cost)| {
+        self.edges.iter().for_each(|&(from, to, _)| {
             // 多重辺は無視
             if from != to {
                 degs[to] += 1;

@@ -3,7 +3,7 @@ use cargo_snippet::snippet;
 #[snippet("@topological_sort_directed")]
 pub fn topological_sort_directed_graph(
     n: usize,
-    zeroIndexedEdges: &[(usize, usize)],
+    zero_indexed_edges: &[(usize, usize)],
 ) -> Vec<usize> {
     let mut result = vec![];
     let mut isolated = std::collections::VecDeque::new();
@@ -14,7 +14,7 @@ pub fn topological_sort_directed_graph(
     // deg[x] = a -> x, b -> xのような辺の数
     let mut deg = vec![0; n + 1];
 
-    for e in zeroIndexedEdges {
+    for e in zero_indexed_edges {
         to[e.0].push(e.1);
         deg[e.1] += 1;
     }
@@ -42,7 +42,7 @@ pub fn topological_sort_directed_graph(
 #[snippet("@topological_sort_undirected")]
 pub fn topological_sort_undirected_graph(
     n: usize,
-    zeroIndexedEdges: &[(usize, usize)],
+    zero_indexed_edges: &[(usize, usize)],
 ) -> Vec<usize> {
     let mut result = vec![];
     let mut isolated = std::collections::VecDeque::new();
@@ -53,7 +53,7 @@ pub fn topological_sort_undirected_graph(
     // deg[x] = a -> x, b -> xのような辺の数
     let mut deg = vec![0; n + 1];
 
-    for e in zeroIndexedEdges {
+    for e in zero_indexed_edges {
         to[e.0].push(e.1);
         to[e.1].push(e.0);
         deg[e.0] += 1;

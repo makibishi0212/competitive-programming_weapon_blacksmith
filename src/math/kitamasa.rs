@@ -91,7 +91,6 @@ pub fn kitamasa<T: Copy + num::Integer + std::ops::AddAssign + num::CheckedMul>(
 #[cfg(test)]
 mod test {
     use super::*;
-    use proptest::prelude::*;
     #[test]
     fn kitamasa_fibonacci_test() {
         let fibonacci_0 = kitamasa(0, &[1, 1], &[1, 1]);

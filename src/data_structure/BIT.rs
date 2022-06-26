@@ -109,7 +109,7 @@ mod test {
             nums.push(i);
         }
 
-        let mut bit2 = BIT::new(nums);
+        let bit2 = BIT::new(nums);
 
         for i in 1..100 {
             for j in i + 1..100 {

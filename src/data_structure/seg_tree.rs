@@ -407,13 +407,13 @@ mod test {
             .collect::<Vec<_>>();
         let sin_array = array.clone();
 
-        let mut segTree = SegTree::new(array, |a, b| cmp::min(a, b));
+        let mut seg_tree = SegTree::new(array, |a, b| cmp::min(a, b));
         for i in 0..n {
             let mut min = MAX;
             for j in 0..(i + 1) {
                 min = cmp::min(min, sin_array[j]);
             }
-            assert_eq!(segTree.query(0, i + 1), min);
+            assert_eq!(seg_tree.query(0, i + 1), min);
         }
     }
 
@@ -425,13 +425,13 @@ mod test {
             array[i as usize] = i as usize;
         }
 
-        let mut segTree = SegTree::new(array, |a, b| a + b);
+        let mut seg_tree = SegTree::new(array, |a, b| a + b);
         for i in 1..n {
             for j in i + 2..n {
                 let i = i as usize;
                 let j = j as usize;
                 let sum = j * (j - 1) / 2 - i * (i - 1) / 2;
-                assert_eq!(segTree.query(i as usize, j as usize), sum);
+                assert_eq!(seg_tree.query(i as usize, j as usize), sum);
             }
         }
     }
