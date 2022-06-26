@@ -10,14 +10,19 @@ pub fn norm_inv(p: f64, avg: f64, std: f64) -> f64 {
         let pp = if p < 1.0 { p } else { 2.0 - p };
         let t = (-2.0 * (pp / 2.0).ln()).sqrt();
 
-        let mut x = -0.70711 * ((2.30753 + t * 0.27061) / (1.0 + t * (0.99229 + t * 0.04481)) - t);
+        let mut x = -std::f64::consts::FRAC_1_SQRT_2
+            * ((2.30753 + t * 0.27061) / (1.0 + t * (0.99229 + t * 0.04481)) - t);
 
         for _ in 0..2 {
             let err = erfc(x) - pp;
             x += err / (1.12837916709551257 * (-x * x).exp() - x * err);
         }
 
-        return if p < 1.0 { x } else { -x };
+        if p < 1.0 {
+            x
+        } else {
+            -x
+        }
     }
 
     fn erfc(mut x: f64) -> f64 {
@@ -75,7 +80,7 @@ pub fn norm_inv(p: f64, avg: f64, std: f64) -> f64 {
         return 1.0 - if is_neg { res - 1.0 } else { 1.0 - res };
     }
 
-    return -1.4142135623730950488 * std * erfcinv(2.0 * p) + avg;
+    return -std::f64::consts::SQRT_2 * std * erfcinv(2.0 * p) + avg;
 }
 
 #[cfg(test)]

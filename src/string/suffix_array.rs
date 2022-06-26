@@ -103,7 +103,7 @@ fn sa_is(s_i: &[usize], max_s_i: usize) -> Vec<usize> {
 
     let mut sa = vec![0; n];
 
-    induced_sort(&mut sa, &s_i, &lms, &char_l_count, &char_ranges);
+    induced_sort(&mut sa, s_i, &lms, &char_l_count, &char_ranges);
 
     if lms_count > 0 {
         let mut sorted_lms = Vec::with_capacity(lms_count);
@@ -159,7 +159,7 @@ fn sa_is(s_i: &[usize], max_s_i: usize) -> Vec<usize> {
             sorted_lms[i] = lms[lms_part_sa[i]];
         }
 
-        induced_sort(&mut sa, &s_i, &sorted_lms, &char_l_count, &char_ranges);
+        induced_sort(&mut sa, s_i, &sorted_lms, &char_l_count, &char_ranges);
     }
 
     sa.iter().map(|index1| index1 - 1).collect()
@@ -188,7 +188,7 @@ fn induced_sort(
         let mut l_count = char_l_count[c];
         if !checked[c] {
             for j in c_range.0..c_range.1 {
-                let is_l = if l_count != 0 { true } else { false };
+                let is_l = l_count != 0;
                 if l_count != 0 {
                     l_count -= 1;
                 };
