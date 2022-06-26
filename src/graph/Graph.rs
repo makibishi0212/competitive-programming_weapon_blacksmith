@@ -1,7 +1,5 @@
 // TODO: ワーシャルフロイド
 
-use std::fmt::Debug;
-
 use crate::data_structure::UnionFind::UnionFind;
 use cargo_snippet::snippet;
 

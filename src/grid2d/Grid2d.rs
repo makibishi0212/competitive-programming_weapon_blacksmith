@@ -1,4 +1,6 @@
 use crate::data_structure::RcList::RcList;
+use cargo_snippet::snippet;
+#[snippet("@Grid2d")]
 pub struct Grid2d {
     obstacles: Vec<bool>,
     default_enterable_dirs: Vec<[bool; 4]>,
@@ -8,6 +10,7 @@ pub struct Grid2d {
 }
 
 // TODO: 各マスを跨いだ時の移動コストを追加？
+#[snippet("@Grid2d")]
 impl Grid2d {
     const L: usize = 0;
     const R: usize = 1;

@@ -1,6 +1,7 @@
 use cargo_snippet::snippet;
 
 #[snippet("@RcList")]
+#[snippet("@Grid2d")]
 #[derive(Clone, Debug)]
 struct RcListInternal<T> {
     value: T,
@@ -8,12 +9,14 @@ struct RcListInternal<T> {
 }
 
 #[snippet("@RcList")]
+#[snippet("@Grid2d")]
 #[derive(Clone, Debug)]
 pub struct RcList<T> {
     relay: Option<std::rc::Rc<RcListInternal<T>>>,
 }
 
 #[snippet("@RcList")]
+#[snippet("@Grid2d")]
 impl<T: Clone> RcList<T> {
     pub fn new() -> Self {
         RcList { relay: None }
