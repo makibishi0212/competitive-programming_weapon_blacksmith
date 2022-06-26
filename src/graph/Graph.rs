@@ -68,7 +68,7 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> Graph<T> {
             edges_from[from].push((to, cost));
         });
 
-        while isolated.len() != 0 {
+        while !isolated.is_empty() {
             let next = isolated.pop_back().unwrap();
             result.push(next);
             for &(to, _) in &edges_from[next] {
@@ -91,7 +91,7 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> Graph<T> {
         }
 
         impl Csr {
-            pub fn new(n: usize, edges: &Vec<Vec<usize>>) -> Self {
+            pub fn new(n: usize, edges: &[Vec<usize>]) -> Self {
                 let mut e_count = 0;
                 edges.iter().for_each(|edges_f| {
                     e_count += edges_f.len();

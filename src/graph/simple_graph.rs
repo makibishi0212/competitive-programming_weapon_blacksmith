@@ -315,11 +315,9 @@ impl<T: std::marker::Copy + std::cmp::PartialOrd> SimpleGraph<T> {
             return false;
         }
 
-        is_tree = visited.iter().all(|&visited_node| {
-            return visited_node;
-        });
+        is_tree = visited.iter().all(|&visited_node| visited_node);
 
-        return is_tree;
+        is_tree
     }
 }
 
@@ -379,7 +377,7 @@ impl<T: Copy + num::Signed + num::Bounded + std::ops::AddAssign + std::cmp::Ord>
         from_to_n
             .iter()
             .filter(|&&dist| dist != T::max_value())
-            .map(|dist| *dist)
+            .copied()
             .for_each(|x| {
                 dist_total_before += x;
             });
@@ -398,7 +396,7 @@ impl<T: Copy + num::Signed + num::Bounded + std::ops::AddAssign + std::cmp::Ord>
         from_to_n
             .iter()
             .filter(|&&dist| dist != T::max_value())
-            .map(|dist| *dist)
+            .copied()
             .for_each(|x| {
                 dist_total_after += x;
             });

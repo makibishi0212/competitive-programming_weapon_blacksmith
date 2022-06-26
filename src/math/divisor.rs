@@ -80,7 +80,7 @@ pub fn enumerate_divisor(n: usize) -> Vec<usize> {
         i += 1;
     }
 
-    divisors.sort();
+    divisors.sort_unstable();
 
     divisors
 }

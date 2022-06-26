@@ -15,12 +15,12 @@ pub fn power_mod<
     let two: T = one + one;
 
     if exp == T::zero() {
-        return T::one();
+        T::one()
     } else if exp & one == T::zero() {
         let base = power_mod(base, exp / two, modulo) % modulo;
-        return (base * base) % modulo;
+        (base * base) % modulo
     } else {
-        return power_mod(base, exp - one, modulo) % modulo * base % modulo;
+        power_mod(base, exp - one, modulo) % modulo * base % modulo
     }
 }
 

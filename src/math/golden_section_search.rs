@@ -19,7 +19,7 @@ pub fn golden_section_search<T: std::cmp::PartialOrd>(
     assert!(f(max) > f(x_1) && f(max) > f(x_2) || f(max) < f(x_1) && f(max) < f(x_2));
 
     // 上に凸かどうか
-    let convex = if f(min) > f(x_1) { false } else { true };
+    let convex = f(min) <= f(x_1);
 
     while (max - min) > end_width {
         // x_1が次の区間の中心になるかどうか
@@ -59,7 +59,7 @@ pub fn golden_section_search_loose<T: std::cmp::PartialOrd>(
     let mut x_2 = (max - min) / golden_ratio + min;
 
     // 上に凸かどうか
-    let convex = if f(min) > f(x_1) { false } else { true };
+    let convex = f(min) <= f(x_1);
 
     let mut count = 0;
 

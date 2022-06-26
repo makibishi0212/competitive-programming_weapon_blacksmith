@@ -66,7 +66,7 @@ pub fn topological_sort_undirected_graph(
         }
     }
 
-    while isolated.len() != 0 {
+    while !isolated.is_empty() {
         let next = isolated.pop_back().unwrap();
         result.push(next);
         for i in &to[next] {

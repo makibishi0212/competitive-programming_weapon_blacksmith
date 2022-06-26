@@ -11,7 +11,8 @@ pub fn gcd(a: usize, b: usize) -> usize {
         bb = aa % tmp;
         aa = tmp;
     }
-    return aa;
+
+    aa
 }
 
 // 最小公倍数
@@ -29,7 +30,8 @@ pub fn extgcd<T: num::Num + Copy>(a: T, b: T) -> (T, T) {
     }
 
     let d = extgcd(b, a % b);
-    return (d.1, d.0 - a / b * d.1);
+
+    (d.1, d.0 - a / b * d.1)
 }
 
 #[cfg(test)]

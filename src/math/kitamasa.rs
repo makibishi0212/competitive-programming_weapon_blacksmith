@@ -54,7 +54,7 @@ pub fn kitamasa<T: Copy + num::Integer + std::ops::AddAssign + num::CheckedMul>(
         new_n_coefficients
     }
 
-    while operations.len() > 0 {
+    while !operations.is_empty() {
         let next = operations.pop().unwrap();
 
         match next {
@@ -67,13 +67,13 @@ pub fn kitamasa<T: Copy + num::Integer + std::ops::AddAssign + num::CheckedMul>(
                         new_n_coefficients[i] += n_coefficients[j] * tmp_n_coefficients[i];
                     }
 
-                    tmp_n_coefficients = calc_new_coefficients(&tmp_n_coefficients, &coefficients);
+                    tmp_n_coefficients = calc_new_coefficients(&tmp_n_coefficients, coefficients);
                 }
 
                 n_coefficients = new_n_coefficients;
             }
             1 => {
-                let new_n_coefficients = calc_new_coefficients(&n_coefficients, &coefficients);
+                let new_n_coefficients = calc_new_coefficients(&n_coefficients, coefficients);
                 n_coefficients = new_n_coefficients;
             }
             _ => {}

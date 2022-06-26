@@ -80,7 +80,7 @@ pub fn norm_inv(p: f64, avg: f64, std: f64) -> f64 {
         return 1.0 - if is_neg { res - 1.0 } else { 1.0 - res };
     }
 
-    return -std::f64::consts::SQRT_2 * std * erfcinv(2.0 * p) + avg;
+    -std::f64::consts::SQRT_2 * std * erfcinv(2.0 * p) + avg
 }
 
 #[cfg(test)]
