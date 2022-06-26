@@ -9,17 +9,17 @@ struct RcListInternal<T> {
 
 #[snippet("@RcList")]
 #[derive(Clone, Debug)]
-struct RcList<T> {
+pub struct RcList<T> {
     relay: Option<std::rc::Rc<RcListInternal<T>>>,
 }
 
 #[snippet("@RcList")]
 impl<T: Clone> RcList<T> {
-    fn new() -> Self {
+    pub fn new() -> Self {
         RcList { relay: None }
     }
 
-    fn push(&mut self, value: T) {
+    pub fn push(&mut self, value: T) {
         let new_node = RcListInternal {
             value,
             parent: self.clone(),
@@ -27,7 +27,7 @@ impl<T: Clone> RcList<T> {
         self.relay = Some(std::rc::Rc::new(new_node));
     }
 
-    fn to_vec(&self) -> Vec<T> {
+    pub fn to_vec(&self) -> Vec<T> {
         match self.relay {
             Some(ref relay) => {
                 let mut vec = relay.parent.to_vec();

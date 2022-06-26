@@ -1,3 +1,4 @@
+use crate::data_structure::RcList::RcList;
 pub struct Grid2d {
     obstacles: Vec<bool>,
     default_enterable_dirs: Vec<[bool; 4]>,
@@ -23,7 +24,7 @@ impl Grid2d {
         }
     }
 
-    fn new(height: usize, width: usize) -> Self {
+    pub fn new(height: usize, width: usize) -> Self {
         let mut default_enterable_dirs = vec![[true; 4]; height * width];
         for x in 0..width {
             // 最上行
@@ -69,7 +70,7 @@ impl Grid2d {
     }
 
     /// set obstacle (y.x)
-    fn set_obstacle(&mut self, coordinate: (usize, usize)) {
+    pub fn set_obstacle(&mut self, coordinate: (usize, usize)) {
         let pos = self.get_pos(coordinate);
         self.obstacles[pos] = true;
 
@@ -95,7 +96,7 @@ impl Grid2d {
     }
 
     // ダイクストラ(2点間最小距離、2点間最小経路(座標の配列、方向の配列))
-    fn calc_min_dist(&self, start: (usize, usize), goal: (usize, usize)) -> Option<usize> {
+    pub fn calc_min_dist(&self, start: (usize, usize), goal: (usize, usize)) -> Option<usize> {
         let mut que = std::collections::VecDeque::new();
         que.push_back((start, 0));
 
@@ -116,7 +117,7 @@ impl Grid2d {
             }
             visited[pos] = true;
 
-            self.enterable_dirs[self.get_pos(now)]
+            self.enterable_dirs[pos]
                 .iter()
                 .enumerate()
                 .for_each(|(dir, &enterable)| {
@@ -131,13 +132,88 @@ impl Grid2d {
     }
 
     // ダイクストラ(2点間最小経路(座標の配列))
-    fn calc_min_route_coordinate_sequence() {
-        todo!();
+    pub fn calc_min_route_coordinate_sequence(
+        &self,
+        start: (usize, usize),
+        goal: (usize, usize),
+    ) -> Option<Vec<(usize, usize)>> {
+        let mut visited = vec![false; self.height * self.width];
+
+        let mut que = std::collections::VecDeque::new();
+        que.push_back((start, RcList::new()));
+
+        let mut coordinates = None;
+
+        while !que.is_empty() {
+            let (now, coordinate_list) = que.pop_back().unwrap();
+            if now == goal {
+                let coordinates_vec = vec![vec![start], coordinate_list.to_vec()].concat();
+                coordinates = Some(coordinates_vec);
+                break;
+            }
+
+            let pos = self.get_pos(now);
+            if visited[pos] {
+                continue;
+            }
+            visited[pos] = true;
+
+            self.enterable_dirs[pos]
+                .iter()
+                .enumerate()
+                .for_each(|(dir, &enterable)| {
+                    if enterable {
+                        let new = self.get_moved_coordinate(now, dir);
+                        let mut new_coordinate_list_list = coordinate_list.clone();
+                        new_coordinate_list_list.push(new);
+                        que.push_front((new, new_coordinate_list_list));
+                    }
+                });
+        }
+
+        coordinates
     }
 
     // ダイクストラ(2点間最小経路(方向の配列))
-    fn calc_min_route_dirs() {
-        todo!();
+    pub fn calc_min_route_dirs(
+        &self,
+        start: (usize, usize),
+        goal: (usize, usize),
+    ) -> Option<Vec<usize>> {
+        let mut visited = vec![false; self.height * self.width];
+
+        let mut que = std::collections::VecDeque::new();
+        que.push_back((start, RcList::new()));
+
+        let mut dirs = None;
+
+        while !que.is_empty() {
+            let (now, dir_list) = que.pop_back().unwrap();
+            if now == goal {
+                dirs = Some(dir_list.to_vec());
+                break;
+            }
+
+            let pos = self.get_pos(now);
+            if visited[pos] {
+                continue;
+            }
+            visited[pos] = true;
+
+            self.enterable_dirs[pos]
+                .iter()
+                .enumerate()
+                .for_each(|(dir, &enterable)| {
+                    if enterable {
+                        let new = self.get_moved_coordinate(now, dir);
+                        let mut new_dir_list = dir_list.clone();
+                        new_dir_list.push(dir);
+                        que.push_front((new, new_dir_list));
+                    }
+                });
+        }
+
+        dirs
     }
 }
 
@@ -149,6 +225,21 @@ mod tests {
     fn h4w4_empty_test() {
         let grid = Grid2d::new(4, 4);
         assert_eq!(grid.calc_min_dist((0, 0), (3, 3)), Some(6));
+        assert_eq!(
+            grid.calc_min_route_dirs((0, 0), (3, 3)),
+            Some(vec![
+                Grid2d::R,
+                Grid2d::R,
+                Grid2d::R,
+                Grid2d::D,
+                Grid2d::D,
+                Grid2d::D
+            ])
+        );
+        assert_eq!(
+            grid.calc_min_route_coordinate_sequence((0, 0), (3, 3)),
+            Some(vec![(0, 0), (0, 1), (0, 2), (0, 3), (1, 3), (2, 3), (3, 3)])
+        );
     }
 
     #[test]
@@ -165,6 +256,11 @@ mod tests {
         grid.set_obstacle((1, 2));
         grid.set_obstacle((1, 3));
         assert_eq!(grid.calc_min_dist((0, 0), (3, 3)), None);
+        assert_eq!(grid.calc_min_route_dirs((0, 0), (3, 3)), None);
+        assert_eq!(
+            grid.calc_min_route_coordinate_sequence((0, 0), (3, 3)),
+            None
+        );
     }
 
     #[test]
@@ -184,5 +280,42 @@ mod tests {
         grid.set_obstacle((3, 2));
         grid.set_obstacle((3, 3));
         assert_eq!(grid.calc_min_dist((0, 0), (4, 3)), Some(13));
+        assert_eq!(
+            grid.calc_min_route_dirs((0, 0), (4, 3)),
+            Some(vec![
+                Grid2d::R,
+                Grid2d::R,
+                Grid2d::R,
+                Grid2d::D,
+                Grid2d::D,
+                Grid2d::L,
+                Grid2d::L,
+                Grid2d::L,
+                Grid2d::D,
+                Grid2d::D,
+                Grid2d::R,
+                Grid2d::R,
+                Grid2d::R,
+            ])
+        );
+        assert_eq!(
+            grid.calc_min_route_coordinate_sequence((0, 0), (4, 3)),
+            Some(vec![
+                (0, 0),
+                (0, 1),
+                (0, 2),
+                (0, 3),
+                (1, 3),
+                (2, 3),
+                (2, 2),
+                (2, 1),
+                (2, 0),
+                (3, 0),
+                (4, 0),
+                (4, 1),
+                (4, 2),
+                (4, 3),
+            ])
+        );
     }
 }
