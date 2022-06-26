@@ -88,6 +88,7 @@ pub fn kitamasa<T: Copy + num::Integer + std::ops::AddAssign + num::CheckedMul>(
     value
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
     use proptest::prelude::*;

@@ -80,6 +80,7 @@ pub fn prev_permutation<T: std::cmp::PartialOrd>(array: &mut [T]) -> Option<usiz
     Some(asc_begin_index)
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
     use proptest::prelude::*;

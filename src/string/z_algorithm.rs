@@ -32,6 +32,7 @@ pub fn z_algorithm(s: &[char]) -> Vec<usize> {
     z
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
 

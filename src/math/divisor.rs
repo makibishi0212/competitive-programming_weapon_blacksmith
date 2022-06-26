@@ -85,6 +85,7 @@ pub fn enumerate_divisor(n: usize) -> Vec<usize> {
     divisors
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
     use proptest::prelude::*;

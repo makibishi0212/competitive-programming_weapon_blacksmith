@@ -78,6 +78,7 @@ pub fn norm_inv(p: f64, avg: f64, std: f64) -> f64 {
     return -1.4142135623730950488 * std * erfcinv(2.0 * p) + avg;
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
 

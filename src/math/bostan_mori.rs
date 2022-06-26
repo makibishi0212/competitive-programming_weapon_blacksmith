@@ -70,6 +70,7 @@ pub fn bostan_mori(zero_indexed_n: usize, coefficients: &[i128], initial_value: 
     P[0] / Q[0]
 }
 
+#[cfg(test)]
 mod test {
     use super::bostan_mori;
 

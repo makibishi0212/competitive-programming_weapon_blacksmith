@@ -1,4 +1,4 @@
-use rand::{prelude::StdRng, Rng, SeedableRng};
+use rand::Rng;
 
 use cargo_snippet::snippet;
 use rand;

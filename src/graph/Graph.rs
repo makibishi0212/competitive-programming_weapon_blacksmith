@@ -411,6 +411,7 @@ impl<T: Copy + num::Signed + num::Bounded + std::ops::AddAssign + std::cmp::Ord>
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
     use proptest::prelude::*;

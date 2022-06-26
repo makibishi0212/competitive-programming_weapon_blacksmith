@@ -76,11 +76,12 @@ impl<T: std::cmp::PartialOrd> BinSearchPower<T> for [T] {
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
 
     #[test]
-    fn binarySeachPowerTest() {
+    fn binary_search_power_test() {
         let array = vec![-3, -1, 0, 1, 3, 5, 7, 111, 1210, 1345, 123479];
         assert_eq!(array[array.lower_bound_only_asc(1).unwrap()], 1);
         assert_eq!(array[array.upper_bound_only_asc(1).unwrap()], 3);

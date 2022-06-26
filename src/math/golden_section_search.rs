@@ -87,6 +87,7 @@ pub fn golden_section_search_loose<T: std::cmp::PartialOrd>(
     (min + max) / 2.0
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
 

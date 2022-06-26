@@ -113,6 +113,7 @@ impl MaximumFlow {
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
 

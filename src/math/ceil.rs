@@ -5,6 +5,7 @@ pub fn ceil<T: num::Integer + Copy>(top: T, bottom: T) -> T {
     (top + bottom - T::one()) / bottom
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
     use proptest::prelude::*;

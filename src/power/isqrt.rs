@@ -31,12 +31,13 @@ impl IntSqrtPower for usize {
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
     use proptest::prelude::*;
 
     #[test]
-    fn intSqrtPowerTest() {
+    fn int_sqrt_power_test() {
         assert_eq!(4.sqrt(), 2);
         assert_eq!(9.sqrt(), 3);
         assert_eq!(10.sqrt(), 3);

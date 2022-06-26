@@ -90,6 +90,7 @@ impl<T: Ord + Copy> DEPQ<T> {
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
     use proptest::prelude::*;

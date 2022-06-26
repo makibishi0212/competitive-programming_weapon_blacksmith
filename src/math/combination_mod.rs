@@ -139,12 +139,13 @@ pub fn prime_combination_mod<
     permutation * prime_inverse_mod(element, prime_modulo) % prime_modulo
 }
 
-const LARGE_PRIME: usize = 1_000_000_007;
-const LARGE_PRIME2: usize = 2_147_483_647;
-
+#[cfg(test)]
 mod test {
     use super::*;
     use proptest::prelude::*;
+
+    const LARGE_PRIME: usize = 1_000_000_007;
+    const LARGE_PRIME2: usize = 2_147_483_647;
 
     #[test]
     fn power_mod_test() {

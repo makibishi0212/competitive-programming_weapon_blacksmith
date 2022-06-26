@@ -12,6 +12,7 @@
 
 use cargo_snippet::snippet;
 
+#[allow(unused)]
 fn lcp_array() {
     todo!();
 }
@@ -54,29 +55,29 @@ fn sa_is(s_i: &[usize], max_s_i: usize) -> Vec<usize> {
     // 辞書式順序でsがtより前にある場合、s < tと書くことにする。 ex) king < kong, b < ba
     // L型: s[i..] > s[i+1..] (s[i..] は s[i+1..]よりも辞書的に前にある)
     // S型: s[i..] <= s[i+1..] (s[i..] は s[i+1..]と同一かより後ろにある)
-    let mut is_L = vec![true; n]; // インデックスiがLならtrue、Sならfalse
+    let mut is_l = vec![true; n]; // インデックスiがLならtrue、Sならfalse
 
     for i in (0..n - 1).rev() {
-        is_L[i] = if s_i[i] == s_i[i + 1] {
-            is_L[i + 1]
+        is_l[i] = if s_i[i] == s_i[i + 1] {
+            is_l[i + 1]
         } else {
             s_i[i] >= s_i[i + 1]
         };
     }
 
-    let mut char_L_count = vec![0; max_s_i + 1]; // L型として現れる各文字の出現回数を格納する(HashMapだと順序が保証されないので配列でやる)
-    let mut char_S_count = vec![0; max_s_i + 1]; // S型として現れる各文字の出現回数を格納する
+    let mut char_l_count = vec![0; max_s_i + 1]; // L型として現れる各文字の出現回数を格納する(HashMapだと順序が保証されないので配列でやる)
+    let mut char_s_count = vec![0; max_s_i + 1]; // S型として現れる各文字の出現回数を格納する
     for i in 0..n {
-        if is_L[i] {
-            char_L_count[s_i[i]] += 1;
+        if is_l[i] {
+            char_l_count[s_i[i]] += 1;
         } else {
-            char_S_count[s_i[i]] += 1;
+            char_s_count[s_i[i]] += 1;
         }
     }
     let mut char_ranges = vec![(0, 0); max_s_i + 1]; // 各文字が取る範囲　これは閉区間[a,b)
     let mut last = 0;
     for c in 0..=max_s_i {
-        let c_total = char_L_count[c] + char_S_count[c];
+        let c_total = char_l_count[c] + char_s_count[c];
         if c_total != 0 {
             char_ranges[c] = (last, last + c_total);
             last += c_total;
@@ -88,7 +89,7 @@ fn sa_is(s_i: &[usize], max_s_i: usize) -> Vec<usize> {
     let mut lms_index = vec![0; n];
     let mut lms_count = 0;
     for i in 1..n {
-        if is_L[i - 1] && !is_L[i] {
+        if is_l[i - 1] && !is_l[i] {
             lms_count += 1;
             lms_index[i] = lms_count;
         }
@@ -102,7 +103,7 @@ fn sa_is(s_i: &[usize], max_s_i: usize) -> Vec<usize> {
 
     let mut sa = vec![0; n];
 
-    induced_sort(&mut sa, &s_i, &lms, &char_L_count, &char_ranges);
+    induced_sort(&mut sa, &s_i, &lms, &char_l_count, &char_ranges);
 
     if lms_count > 0 {
         let mut sorted_lms = Vec::with_capacity(lms_count);
@@ -158,7 +159,7 @@ fn sa_is(s_i: &[usize], max_s_i: usize) -> Vec<usize> {
             sorted_lms[i] = lms[lms_part_sa[i]];
         }
 
-        induced_sort(&mut sa, &s_i, &sorted_lms, &char_L_count, &char_ranges);
+        induced_sort(&mut sa, &s_i, &sorted_lms, &char_l_count, &char_ranges);
     }
 
     sa.iter().map(|index1| index1 - 1).collect()
@@ -170,7 +171,7 @@ fn induced_sort(
     sa: &mut [usize],
     s_i: &[usize],
     lms: &[usize],
-    char_L_count: &[usize],
+    char_l_count: &[usize],
     char_ranges: &[(usize, usize)],
 ) {
     let n = s_i.len();
@@ -180,18 +181,18 @@ fn induced_sort(
 
     // (saのそのインデックスの先頭の文字のs_i[i], L型かどうか)
     let mut index_to_info = vec![(0, true); n];
-    let mut checked = vec![false; char_L_count.len()];
+    let mut checked = vec![false; char_l_count.len()];
     for i in 0..n {
         let c = s_i[i];
         let c_range = char_ranges[c];
-        let mut l_count = char_L_count[c];
+        let mut l_count = char_l_count[c];
         if !checked[c] {
             for j in c_range.0..c_range.1 {
-                let is_L = if l_count != 0 { true } else { false };
+                let is_l = if l_count != 0 { true } else { false };
                 if l_count != 0 {
                     l_count -= 1;
                 };
-                index_to_info[j] = (c, is_L);
+                index_to_info[j] = (c, is_l);
             }
             checked[c] = true;
         }
@@ -200,7 +201,7 @@ fn induced_sort(
     // 0を未設定として使いたいので、saは1-indexedにする。
 
     // (1) saをLMSのインデックスで埋める
-    let mut now_char_index = vec![std::usize::MAX; char_L_count.len()];
+    let mut now_char_index = vec![std::usize::MAX; char_l_count.len()];
 
     for &i in lms.iter().rev() {
         let c = s_i[i];
@@ -213,7 +214,7 @@ fn induced_sort(
     }
 
     // (2) 正順にL型のインデックスを詰める
-    let mut char_insert_count = vec![0; char_L_count.len()];
+    let mut char_insert_count = vec![0; char_l_count.len()];
 
     // 一番最初だけ予め埋めておく
     let c = s_i[n - 1];
@@ -230,15 +231,15 @@ fn induced_sort(
 
         let target_start_index = char_ranges[target_c].0;
         let to_index = target_start_index + char_insert_count[target_c];
-        let to_is_L = index_to_info[to_index].1;
-        if to_is_L {
+        let to_is_l = index_to_info[to_index].1;
+        if to_is_l {
             sa[to_index] = target_index + 1;
             char_insert_count[target_c] += 1;
         }
     }
 
     // (3) 逆順にS型のインデックスを詰める
-    char_insert_count = vec![0; char_L_count.len()];
+    char_insert_count = vec![0; char_l_count.len()];
     for i in (0..n).rev() {
         if sa[i] < 2 {
             continue;
@@ -250,14 +251,15 @@ fn induced_sort(
         let target_end_index = char_ranges[target_c].1 - 1;
         let to_index = target_end_index - char_insert_count[target_c];
 
-        let to_is_S = !index_to_info[to_index].1;
-        if to_is_S {
+        let to_is_s = !index_to_info[to_index].1;
+        if to_is_s {
             sa[to_index] = target_index + 1;
             char_insert_count[target_c] += 1;
         }
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
 
@@ -281,7 +283,7 @@ mod test {
         assert_eq!(suffix_array(&str_4), [6, 5, 4, 3, 2, 1, 0]);
 
         let mut str_5 = vec![];
-        for i in 0..200000 {
+        for _ in 0..200000 {
             str_5.push('a');
         }
         let mut sa_5 = vec![];

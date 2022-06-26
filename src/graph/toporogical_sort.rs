@@ -80,6 +80,7 @@ pub fn topological_sort_undirected_graph(
     result
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
     #[test]

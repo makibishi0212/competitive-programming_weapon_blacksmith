@@ -81,6 +81,7 @@ impl<T: std::ops::AddAssign + std::ops::Sub<Output = T> + std::marker::Copy + st
     }
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
 

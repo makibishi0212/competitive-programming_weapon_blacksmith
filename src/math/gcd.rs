@@ -32,6 +32,8 @@ pub fn extgcd<T: num::Num + Copy>(a: T, b: T) -> (T, T) {
     return (d.1, d.0 - a / b * d.1);
 }
 
+#[cfg(test)]
+
 mod test {
     use super::*;
     use proptest::prelude::*;

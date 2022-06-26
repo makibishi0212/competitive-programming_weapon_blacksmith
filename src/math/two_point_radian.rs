@@ -5,8 +5,8 @@ pub fn two_point_radian(p1: (f64, f64), p2: (f64, f64)) -> f64 {
     (p2.1 - p1.1).atan2(p2.0 - p1.0)
 }
 
+#[cfg(test)]
 mod test {
-    use crate::math::two_point_radian;
     use proptest::prelude::*;
 
     use super::*;

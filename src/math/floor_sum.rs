@@ -39,9 +39,9 @@ pub fn floor_sum<
     ans
 }
 
+#[cfg(test)]
 mod test {
     use super::*;
-    use proptest::prelude::*;
 
     #[test]
     fn floor_sum_test() {

@@ -284,35 +284,40 @@ impl<T: std::clone::Clone + std::fmt::Debug, U: std::clone::Clone + std::fmt::De
     }
 }
 
-#[test]
-fn lazy_seg_tree_test() {
-    let mut cum_sum = LazySegTree::<usize, usize>::new(
-        vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        |a, b| std::cmp::max(a, b),
-        |target, effect| target + effect,
-        |effect1, effect2| effect1 + effect2,
-    );
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    assert_eq!(cum_sum.origin_power, 16);
-    assert_eq!(cum_sum.origin_length, 10);
-    assert_eq!(cum_sum.log, 4);
-    assert_eq!(cum_sum.get(2), 3);
-    assert_eq!(cum_sum.get(0), 1);
-    assert_eq!(cum_sum.get(7), 8);
-    assert_eq!(cum_sum.get(9), 10);
-    assert_eq!(cum_sum.query(0, 5), 5);
-    cum_sum.set(0, 20);
-    assert_eq!(cum_sum.get(0), 20);
-    assert_eq!(cum_sum.query(0, 4), 20);
-    cum_sum.apply(0, 10);
-    assert_eq!(cum_sum.get(0), 30);
-    assert_eq!(cum_sum.query(0, 4), 30);
+    #[test]
+    fn lazy_seg_tree_test() {
+        let mut cum_sum = LazySegTree::<usize, usize>::new(
+            vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            |a, b| std::cmp::max(a, b),
+            |target, effect| target + effect,
+            |effect1, effect2| effect1 + effect2,
+        );
 
-    cum_sum.apply_range(1, 3, 100);
-    assert_eq!(cum_sum.query(0, 4), 103);
-    assert_eq!(cum_sum.get(1), 102);
+        assert_eq!(cum_sum.origin_power, 16);
+        assert_eq!(cum_sum.origin_length, 10);
+        assert_eq!(cum_sum.log, 4);
+        assert_eq!(cum_sum.get(2), 3);
+        assert_eq!(cum_sum.get(0), 1);
+        assert_eq!(cum_sum.get(7), 8);
+        assert_eq!(cum_sum.get(9), 10);
+        assert_eq!(cum_sum.query(0, 5), 5);
+        cum_sum.set(0, 20);
+        assert_eq!(cum_sum.get(0), 20);
+        assert_eq!(cum_sum.query(0, 4), 20);
+        cum_sum.apply(0, 10);
+        assert_eq!(cum_sum.get(0), 30);
+        assert_eq!(cum_sum.query(0, 4), 30);
 
-    assert_eq!(cum_sum.query(5, 10), 10);
-    cum_sum.apply_range(5, 10, 5);
-    assert_eq!(cum_sum.query(5, 10), 15);
+        cum_sum.apply_range(1, 3, 100);
+        assert_eq!(cum_sum.query(0, 4), 103);
+        assert_eq!(cum_sum.get(1), 102);
+
+        assert_eq!(cum_sum.query(5, 10), 10);
+        cum_sum.apply_range(5, 10, 5);
+        assert_eq!(cum_sum.query(5, 10), 15);
+    }
 }
