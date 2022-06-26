@@ -1,6 +1,6 @@
 // TODO: ワーシャルフロイド
 
-use crate::data_structure::UnionFind::UnionFind;
+use crate::data_structure::union_find::UnionFind;
 use cargo_snippet::snippet;
 
 #[snippet("@Graph")]

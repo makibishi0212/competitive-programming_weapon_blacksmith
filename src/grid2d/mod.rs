@@ -1,1 +1,1 @@
-pub mod Grid2d;
+pub mod grid_2d;

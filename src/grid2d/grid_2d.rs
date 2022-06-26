@@ -1,4 +1,4 @@
-use crate::data_structure::RcList::RcList;
+use crate::data_structure::rc_list::RcList;
 use cargo_snippet::snippet;
 #[snippet("@Grid2d")]
 pub struct Grid2d {

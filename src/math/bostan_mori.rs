@@ -12,10 +12,10 @@ pub fn bostan_mori(zero_indexed_n: usize, coefficients: &[i128], initial_value: 
     coefficients.reverse();
 
     // 元々の漸化式の母関数をP(x)/Q(x)で表現
-    let mut Q: Vec<i128> = Vec::with_capacity(coefficients.len() + 1);
-    Q.push(1);
+    let mut q: Vec<i128> = Vec::with_capacity(coefficients.len() + 1);
+    q.push(1);
     coefficients.iter().for_each(|c| {
-        Q.push(*c * (-1));
+        q.push(*c * (-1));
     });
 
     fn convolution(a: &[i128], b: &[i128]) -> Vec<i128> {
@@ -33,41 +33,41 @@ pub fn bostan_mori(zero_indexed_n: usize, coefficients: &[i128], initial_value: 
         ans
     }
 
-    let mut P = convolution(&Q, &initial_value);
-    P.resize(initial_value.len(), 0);
+    let mut p = convolution(&q, &initial_value);
+    p.resize(initial_value.len(), 0);
 
     let mut n = zero_indexed_n;
     while n > 0 {
-        let mut Q_minus = Q.clone();
-        for i in 0..Q.len() {
+        let mut q_minus = q.clone();
+        for i in 0..q.len() {
             if i % 2 == 1 {
-                Q_minus[i] = -Q_minus[i];
+                q_minus[i] = -q_minus[i];
             }
         }
 
         // P(x)/Q(x)の分子分母にQ(-x)を畳み込みでかける
-        let PQ_minus = convolution(&P, &Q_minus); // 分子 P(x)Q(-x)
-        let QQ_minus = convolution(&Q, &Q_minus); // 分母 Q(x)Q(-x)
+        let pq_minus = convolution(&p, &q_minus); // 分子 P(x)Q(-x)
+        let qq_minus = convolution(&q, &q_minus); // 分母 Q(x)Q(-x)
 
-        let mut new_P = vec![0; Q.len() - 1];
-        for i in 0..Q.len() - 1 {
+        let mut new_p = vec![0; q.len() - 1];
+        for i in 0..q.len() - 1 {
             let num_index = if n % 2 == 0 { 2 * i } else { 2 * i + 1 };
-            if num_index < PQ_minus.len() {
-                new_P[i] = PQ_minus[num_index];
+            if num_index < pq_minus.len() {
+                new_p[i] = pq_minus[num_index];
             }
         }
-        let mut new_Q = vec![0; Q.len()];
-        for i in 0..Q.len() {
-            new_Q[i] = QQ_minus[2 * i];
+        let mut new_q = vec![0; q.len()];
+        for i in 0..q.len() {
+            new_q[i] = qq_minus[2 * i];
         }
 
-        P = new_P;
-        Q = new_Q;
+        p = new_p;
+        q = new_q;
 
         n /= 2;
     }
 
-    P[0] / Q[0]
+    p[0] / q[0]
 }
 
 #[cfg(test)]
