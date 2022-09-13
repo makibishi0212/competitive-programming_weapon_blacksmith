@@ -1,7 +1,9 @@
 pub mod bit;
 pub mod double_ended_priority_que;
 pub mod lazy_seg_tree;
+pub mod range_set;
 pub mod rc_list;
+pub mod rollback_union_find;
 pub mod seg_tree;
 pub mod sparse_table;
 pub mod union_find;
