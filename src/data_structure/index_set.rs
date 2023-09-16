@@ -8,7 +8,7 @@ pub struct IndexSet {
 
 #[snippet("@IndexSet")]
 impl IndexSet {
-    fn new(n: usize) -> Self {
+    pub fn new(n: usize) -> Self {
         Self {
             vec: vec![],
             poses: vec![None; n],
@@ -16,12 +16,16 @@ impl IndexSet {
     }
 
     // 0 <= value < n
-    fn insert(&mut self, value: usize) {
+    pub fn insert(&mut self, value: usize) {
+        if self.contains(value) {
+            return;
+        }
+
         self.poses[value] = Some(self.vec.len());
         self.vec.push(value);
     }
 
-    fn remove(&mut self, value: usize) {
+    pub fn remove(&mut self, value: usize) {
         let Some(pos) = self.poses[value] else {
             return;
         };
@@ -35,12 +39,16 @@ impl IndexSet {
         self.poses[value] = None;
     }
 
-    fn contains(&self, value: usize) -> bool {
+    pub fn contains(&self, value: usize) -> bool {
         self.poses[value].is_some()
     }
 
-    fn size(&self) -> usize {
+    pub fn size(&self) -> usize {
         self.vec.len()
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &usize> {
+        self.vec.iter()
     }
 }
 
@@ -88,5 +96,35 @@ mod tests {
         assert!(!index_set.contains(8));
 
         assert_eq!(index_set.size(), 3);
+    }
+
+    proptest! {
+        #[test]
+        fn test(insert_values in prop::array::uniform32(any::<u8>()), remove_values in prop::array::uniform16(any::<u8>())) {
+            let mut index_set = IndexSet::new(256);
+            let mut set = std::collections::HashSet::new();
+
+            insert_values.iter().for_each(|&value|{
+                let value = value as usize;
+                index_set.insert(value);
+                set.insert(value);
+            });
+
+            remove_values.iter().for_each(|&value| {
+                let value = value as usize;
+                index_set.remove(value);
+                set.remove(&value);
+            });
+
+            assert_eq!(index_set.size(), set.len());
+
+            set.iter().for_each(|&value| {
+                assert!(index_set.contains(value));
+            });
+
+            index_set.iter().for_each(|value| {
+                assert!(set.contains(value));
+            });
+        }
     }
 }
