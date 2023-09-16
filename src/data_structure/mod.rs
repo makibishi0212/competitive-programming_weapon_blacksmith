@@ -1,5 +1,6 @@
 pub mod bit;
 pub mod double_ended_priority_que;
+pub mod index_set;
 pub mod lazy_seg_tree;
 pub mod range_set;
 pub mod rc_list;
