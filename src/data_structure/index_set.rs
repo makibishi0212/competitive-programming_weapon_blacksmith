@@ -1,5 +1,6 @@
 use cargo_snippet::snippet;
 
+// [0,n)の範囲のSetを程数倍高速で動作させるやつ
 #[snippet("@IndexSet")]
 pub struct IndexSet {
     vec: Vec<usize>,
